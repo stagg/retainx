@@ -10,15 +10,19 @@ import androidx.compose.runtime.retain.LocalRetainedValuesStore
 import androidx.compose.runtime.retain.ManagedRetainedValuesStore
 import androidx.compose.runtime.retain.RetainObserver
 import androidx.compose.runtime.retain.retain as androidxRetain
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
+import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import org.junit.Test
+import kotlin.test.assertNotSame
+import kotlin.test.assertSame
 
+@OptIn(ExperimentalTestApi::class)
 class RetainedValuesStoreProviderTest {
 
   @Test
@@ -27,18 +31,18 @@ class RetainedValuesStoreProviderTest {
     val initializer = TrackingValueInitializer()
     try {
       val first = runSingleProviderHost(owner, ThrowingViewModelStoreOwner, initializer)
-      assertThat(first.retiredCount).isEqualTo(0)
+      assertEquals(0, first.retiredCount)
 
       val second = runSingleProviderHost(owner, ThrowingViewModelStoreOwner, initializer)
 
-      assertThat(second).isSameInstanceAs(first)
-      assertThat(initializer.count).isEqualTo(1)
-      assertThat(first.enteredCount).isEqualTo(2)
-      assertThat(first.exitedCount).isEqualTo(2)
-      assertThat(first.retiredCount).isEqualTo(0)
+      assertSame(first, second)
+      assertEquals(1, initializer.count)
+      assertEquals(2, first.enteredCount)
+      assertEquals(2, first.exitedCount)
+      assertEquals(0, first.retiredCount)
 
       owner.dispose()
-      assertThat(first.retiredCount).isEqualTo(1)
+      assertEquals(1, first.retiredCount)
     } finally {
       owner.dispose()
     }
@@ -52,12 +56,12 @@ class RetainedValuesStoreProviderTest {
       val first = runSingleProviderHost(null, viewModelStoreOwner, initializer)
       val second = runSingleProviderHost(null, viewModelStoreOwner, initializer)
 
-      assertThat(second).isSameInstanceAs(first)
-      assertThat(initializer.count).isEqualTo(1)
-      assertThat(first.retiredCount).isEqualTo(0)
+      assertSame(first, second)
+      assertEquals(1, initializer.count)
+      assertEquals(0, first.retiredCount)
 
       viewModelStoreOwner.viewModelStore.clear()
-      assertThat(first.retiredCount).isEqualTo(1)
+      assertEquals(1, first.retiredCount)
     } finally {
       viewModelStoreOwner.viewModelStore.clear()
     }
@@ -83,8 +87,7 @@ class RetainedValuesStoreProviderTest {
         }
         waitForIdle()
       }
-
-      assertThat(observedStore).isSameInstanceAs(existingStore)
+      assertSame(existingStore, observedStore)
     } finally {
       existingStore.dispose()
     }
@@ -96,8 +99,7 @@ class RetainedValuesStoreProviderTest {
       assertFailsWith<IllegalStateException> {
         resolveRetainedValuesStoreOwner(owner = null, automaticOwner = { null })
       }
-
-    assertThat(exception).hasMessageThat().contains("requires a RetainedValuesStoreOwner")
+    assertContains(exception.message ?: "", "requires a RetainedValuesStoreOwner.")
   }
 
   @Test
@@ -111,15 +113,15 @@ class RetainedValuesStoreProviderTest {
       val secondHost =
         runSiblingProviderHost(viewModelStoreOwner, firstInitializer, secondInitializer)
 
-      assertThat(secondHost.first).isSameInstanceAs(firstHost.first)
-      assertThat(secondHost.second).isSameInstanceAs(firstHost.second)
-      assertThat(firstHost.first).isNotSameInstanceAs(firstHost.second)
-      assertThat(firstInitializer.count).isEqualTo(1)
-      assertThat(secondInitializer.count).isEqualTo(1)
+      assertSame(firstHost.first, secondHost.first)
+      assertSame(firstHost.second, secondHost.second)
+      assertNotSame(firstHost.second, firstHost.first)
+      assertEquals(1, firstInitializer.count)
+      assertEquals(1, secondInitializer.count)
 
       viewModelStoreOwner.viewModelStore.clear()
-      assertThat(firstHost.first.retiredCount).isEqualTo(1)
-      assertThat(firstHost.second.retiredCount).isEqualTo(1)
+      assertEquals(1, firstHost.first.retiredCount)
+      assertEquals(1, firstHost.second.retiredCount)
     } finally {
       viewModelStoreOwner.viewModelStore.clear()
     }
@@ -133,15 +135,15 @@ class RetainedValuesStoreProviderTest {
       val firstHost = runRepeatedProviderHost(owner, initializers)
       val secondHost = runRepeatedProviderHost(owner, initializers)
 
-      assertThat(secondHost[0]).isSameInstanceAs(firstHost[0])
-      assertThat(secondHost[1]).isSameInstanceAs(firstHost[1])
-      assertThat(firstHost[0]).isNotSameInstanceAs(firstHost[1])
-      assertThat(initializers[0].count).isEqualTo(1)
-      assertThat(initializers[1].count).isEqualTo(1)
+      assertSame(firstHost[0], secondHost[0])
+      assertSame(firstHost[1], secondHost[1])
+      assertNotSame(firstHost[1], firstHost[0])
+      assertEquals(1, initializers[0].count)
+      assertEquals(1, initializers[1].count)
 
       owner.dispose()
-      assertThat(firstHost[0].retiredCount).isEqualTo(1)
-      assertThat(firstHost[1].retiredCount).isEqualTo(1)
+      assertEquals(1, firstHost[0].retiredCount)
+      assertEquals(1, firstHost[1].retiredCount)
     } finally {
       owner.dispose()
     }
@@ -164,10 +166,10 @@ class RetainedValuesStoreProviderTest {
       val recreatedFirstRoot =
         runSingleProviderHost(firstOwner, ThrowingViewModelStoreOwner, firstInitializer)
 
-      assertThat(recreatedFirstRoot).isSameInstanceAs(firstRoot)
-      assertThat(recreatedSecondRoot).isSameInstanceAs(secondRoot)
-      assertThat(firstInitializer.count).isEqualTo(1)
-      assertThat(secondInitializer.count).isEqualTo(1)
+      assertSame(firstRoot, recreatedFirstRoot)
+      assertSame(secondRoot, recreatedSecondRoot)
+      assertEquals(1, firstInitializer.count)
+      assertEquals(1, secondInitializer.count)
     } finally {
       firstOwner.dispose()
       secondOwner.dispose()
@@ -231,7 +233,9 @@ class RetainedValuesStoreProviderTest {
           LocalRetainedValuesStore provides ForgetfulRetainedValuesStore,
           LocalViewModelStoreOwner provides ThrowingViewModelStoreOwner,
         ) {
-          RepeatedProviderContent(owner, initializers) { index, value -> values[index] = value }
+          RepeatedProviderContent(owner, initializers) { index, value ->
+            values[index] = value
+          }
         }
       }
       waitForIdle()

@@ -101,12 +101,44 @@ kotlin {
     macosMain { dependsOn(sharedMain) }
     webMain { dependsOn(sharedMain) }
 
-    commonTest.dependencies {
-      implementation(libs.kotlin.test)
-      implementation(libs.kotlinx.coroutines.test)
-      implementation(libs.compose.ui.test)
-      implementation(libs.junit)
-      implementation(libs.truth)
+    commonTest {
+      dependencies {
+        implementation(libs.kotlin.test)
+      }
+    }
+
+    val sharedTest =
+      maybeCreate("sharedTest").apply {
+        dependencies {
+          implementation(libs.compose.ui)
+          implementation(libs.compose.ui.test)
+          implementation(libs.lifecycle.runtime.compose)
+          implementation(libs.lifecycle.viewModel.compose)
+        }
+      }
+    getByName("androidHostTest").apply {
+      dependencies {
+        implementation(libs.robolectric)
+      }
+    }
+    jvmTest {
+      dependencies {
+        implementation(compose.desktop.currentOs)
+      }
+    }
+    iosTest { dependencies { dependsOn(sharedTest) } }
+    macosTest {
+      dependencies {
+        dependsOn(sharedTest)
+      }
+    }
+    jsTest {
+      dependencies { dependsOn(sharedTest) }
+    }
+    wasmJsTest {
+      dependencies {
+        dependsOn(sharedTest)
+      }
     }
   }
 }
