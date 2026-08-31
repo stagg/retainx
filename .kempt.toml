@@ -8,5 +8,8 @@ style = "google"
 [license-header]
 file = "config/license-header.txt"
 
+[ktfmt.license-header]
+excludes = "config/license-header-excludes-kt.txt"
+
 [hook]
-mode = "format"   # format | check
+mode = "format"

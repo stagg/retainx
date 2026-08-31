@@ -1,0 +1,3 @@
+**/RetainedValuesStoreOwner*.kt
+**/RetainedValuesStoreProvider*.kt
+**/AutomaticRetainedValuesStoreOwner*.kt
