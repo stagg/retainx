@@ -24,4 +24,8 @@ rootProject.name = "retainx-root"
 
 include(":retainx")
 
-include(":sample")
+include(":sample:shared")
+
+include(":sample:android")
+
+include(":sample:jvm")

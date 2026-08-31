@@ -4,6 +4,7 @@ plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
+  alias(libs.plugins.android.kotlin.multiplatform.library)
 }
 
 kotlin {
@@ -13,11 +14,29 @@ kotlin {
     allWarningsAsErrors.set(true)
   }
 
+  android {
+    namespace = "com.retainx.sample.shared"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    minSdk = libs.versions.android.minSdk.get().toInt()
+    withHostTest {}
+  }
+
   jvm {
     compilerOptions {
       jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
     }
   }
+
+  listOf(
+      iosArm64(),
+      iosSimulatorArm64(),
+    )
+    .forEach { iosTarget ->
+      iosTarget.binaries.framework {
+        baseName = "SampleShared"
+        isStatic = true
+      }
+    }
 
   applyDefaultHierarchyTemplate()
 
@@ -32,20 +51,6 @@ kotlin {
 
     jvmMain.dependencies {
       implementation(compose.desktop.currentOs)
-    }
-  }
-}
-
-compose.desktop {
-  application {
-    mainClass = "com.retainx.sample.MainKt"
-    nativeDistributions {
-      targetFormats(
-        org.jetbrains.compose.desktop.application.dsl.TargetFormat.Dmg,
-        org.jetbrains.compose.desktop.application.dsl.TargetFormat.Pkg,
-      )
-      packageName = "RetainXSample"
-      packageVersion = "1.0.0"
     }
   }
 }

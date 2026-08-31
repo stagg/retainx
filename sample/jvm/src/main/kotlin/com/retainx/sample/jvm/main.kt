@@ -1,11 +1,12 @@
 // Copyright (C) 2026 Josh Stagg
 // SPDX-License-Identifier: MIT
-package com.retainx.sample
+package com.retainx.sample.jvm
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.retainx.sample.App
 
 fun main() = application {
   Window(
