@@ -1,0 +1,2 @@
+// Copyright (C) ${YEAR} Josh Stagg
+// SPDX-License-Identifier: MIT
