@@ -3,6 +3,7 @@
 package com.retainx.sample
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -10,13 +11,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -60,46 +65,51 @@ class CounterState(val id: String) : RetainObserver {
 @Composable
 fun App() {
   MaterialTheme {
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
       var showChild by retain { mutableStateOf(true) }
 
-      Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+      BoxWithConstraints(
+        modifier =
+          Modifier.fillMaxSize().padding(innerPadding).verticalScroll(rememberScrollState())
       ) {
-        Text(
-          text = "RetainX Demo",
-          style = MaterialTheme.typography.headlineMedium,
-        )
-
-        val store = LocalRetainedValuesStore.current
-        Text(
-          text = "${store::class.qualifiedName}",
-          style = MaterialTheme.typography.bodySmall,
-          textAlign = TextAlign.Center,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row {
-          Button(onClick = { showChild = !showChild }) {
-            Text(if (showChild) "Hide Scoped Child" else "Show Scoped Child")
-          }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        val scopedRetainStore = retain { ManagedRetainedValuesStore() }
-        if (showChild) {
-          LocalRetainedValuesStoreProvider(store = scopedRetainStore) {
-            CounterCard()
-          }
-        } else {
+        Column(
+          modifier = Modifier.fillMaxWidth().heightIn(min = maxHeight).padding(24.dp),
+          horizontalAlignment = Alignment.CenterHorizontally,
+          verticalArrangement = Arrangement.Center,
+        ) {
           Text(
-            text = "Child is currently detached. Retained state persists!",
-            style = MaterialTheme.typography.bodyMedium,
+            text = "RetainX Demo",
+            style = MaterialTheme.typography.headlineMedium,
           )
+
+          val store = LocalRetainedValuesStore.current
+          Text(
+            text = "${store::class.qualifiedName}",
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+          )
+
+          Spacer(modifier = Modifier.height(16.dp))
+
+          Row {
+            Button(onClick = { showChild = !showChild }) {
+              Text(if (showChild) "Hide Scoped Child" else "Show Scoped Child")
+            }
+          }
+
+          Spacer(modifier = Modifier.height(24.dp))
+
+          val scopedRetainStore = retain { ManagedRetainedValuesStore() }
+          if (showChild) {
+            LocalRetainedValuesStoreProvider(store = scopedRetainStore) {
+              CounterCard()
+            }
+          } else {
+            Text(
+              text = "Child is currently detached. Retained state persists!",
+              style = MaterialTheme.typography.bodyMedium,
+            )
+          }
         }
       }
     }
@@ -112,7 +122,7 @@ fun CounterCard() {
     CounterState("counter-1")
   }
 
-  Card(modifier = Modifier.fillMaxWidth(0.6f).padding(16.dp)) {
+  Card(modifier = Modifier.widthIn(max = 500.dp).fillMaxWidth(0.9f).padding(16.dp)) {
     Column(
       modifier = Modifier.padding(24.dp),
       horizontalAlignment = Alignment.CenterHorizontally,

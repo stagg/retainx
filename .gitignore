@@ -39,6 +39,8 @@ output-metadata.json
 .vscode/
 *.swp
 *~
+**/xcuserdata/
+**/DerivedData/
 
 # Operating System files
 .DS_Store
