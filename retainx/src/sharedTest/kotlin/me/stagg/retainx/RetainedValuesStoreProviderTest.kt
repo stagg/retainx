@@ -5,11 +5,14 @@ package me.stagg.retainx
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
 import androidx.compose.runtime.retain.LocalRetainedValuesStore
 import androidx.compose.runtime.retain.ManagedRetainedValuesStore
 import androidx.compose.runtime.retain.RetainObserver
 import androidx.compose.runtime.retain.retain as androidxRetain
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.lifecycle.ViewModelStore
@@ -23,20 +26,44 @@ import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 
 @OptIn(ExperimentalTestApi::class)
-class RetainedValuesStoreProviderTest {
+class RetainedValuesStoreProviderTest : BaseComposeTest() {
 
   @Test
-  fun explicitOwnerRetainsAcrossRootCompositionRecreation() {
+  fun explicitOwnerRetainsAcrossRootCompositionRecreation() = runComposeUiTest {
     val owner = RetainedValuesStoreOwner()
     val initializer = TrackingValueInitializer()
     try {
-      val first = runSingleProviderHost(owner, ThrowingViewModelStoreOwner, initializer)
+      var showContent by mutableStateOf(false)
+      var current: TrackingValue? = null
+
+      setContent {
+        if (showContent) {
+          CompositionLocalProvider(
+            LocalRetainedValuesStore provides ForgetfulRetainedValuesStore,
+            LocalViewModelStoreOwner provides ThrowingViewModelStoreOwner,
+          ) {
+            SingleProviderContent(owner, initializer) { current = it }
+          }
+        }
+      }
+
+      showContent = true
+      waitForIdle()
+      val first = requireNotNull(current)
       assertEquals(0, first.retiredCount)
 
-      val second = runSingleProviderHost(owner, ThrowingViewModelStoreOwner, initializer)
+      showContent = false
+      waitForIdle()
+      current = null
+      showContent = true
+      waitForIdle()
+      val second = requireNotNull(current)
 
       assertSame(first, second)
       assertEquals(1, initializer.count)
+
+      showContent = false
+      waitForIdle()
       assertEquals(2, first.enteredCount)
       assertEquals(2, first.exitedCount)
       assertEquals(0, first.retiredCount)
@@ -49,16 +76,41 @@ class RetainedValuesStoreProviderTest {
   }
 
   @Test
-  fun automaticOwnerRetainsAcrossRootCompositionRecreation() {
+  fun automaticOwnerRetainsAcrossRootCompositionRecreation() = runComposeUiTest {
     val viewModelStoreOwner = TestViewModelStoreOwner()
     val initializer = TrackingValueInitializer()
     try {
-      val first = runSingleProviderHost(null, viewModelStoreOwner, initializer)
-      val second = runSingleProviderHost(null, viewModelStoreOwner, initializer)
+      var showContent by mutableStateOf(false)
+      var current: TrackingValue? = null
+
+      setContent {
+        if (showContent) {
+          CompositionLocalProvider(
+            LocalRetainedValuesStore provides ForgetfulRetainedValuesStore,
+            LocalViewModelStoreOwner provides viewModelStoreOwner,
+          ) {
+            SingleProviderContent(null, initializer) { current = it }
+          }
+        }
+      }
+
+      showContent = true
+      waitForIdle()
+      val first = requireNotNull(current)
+
+      showContent = false
+      waitForIdle()
+      current = null
+      showContent = true
+      waitForIdle()
+      val second = requireNotNull(current)
 
       assertSame(first, second)
       assertEquals(1, initializer.count)
       assertEquals(0, first.retiredCount)
+
+      showContent = false
+      waitForIdle()
 
       viewModelStoreOwner.viewModelStore.clear()
       assertEquals(1, first.retiredCount)
@@ -68,25 +120,23 @@ class RetainedValuesStoreProviderTest {
   }
 
   @Test
-  fun existingStoreTakesPrecedenceBeforeOwnerResolution() {
+  fun existingStoreTakesPrecedenceBeforeOwnerResolution() = runComposeUiTest {
     val existingStore = ManagedRetainedValuesStore()
     val disposedOwner = RetainedValuesStoreOwner().also(RetainedValuesStoreOwner::dispose)
     var observedStore: Any? = null
     try {
-      runComposeUiTest {
-        setContent {
-          CompositionLocalProvider(
-            LocalRetainedValuesStore provides existingStore,
-            LocalViewModelStoreOwner provides ThrowingViewModelStoreOwner,
-          ) {
-            RetainedValuesStoreProvider(owner = disposedOwner) {
-              val currentStore = LocalRetainedValuesStore.current
-              SideEffect { observedStore = currentStore }
-            }
+      setContent {
+        CompositionLocalProvider(
+          LocalRetainedValuesStore provides existingStore,
+          LocalViewModelStoreOwner provides ThrowingViewModelStoreOwner,
+        ) {
+          RetainedValuesStoreProvider(owner = disposedOwner) {
+            val currentStore = LocalRetainedValuesStore.current
+            SideEffect { observedStore = currentStore }
           }
         }
-        waitForIdle()
       }
+      waitForIdle()
       assertSame(existingStore, observedStore)
     } finally {
       existingStore.dispose()
@@ -103,68 +153,153 @@ class RetainedValuesStoreProviderTest {
   }
 
   @Test
-  fun siblingProvidersRetainIndependently() {
+  fun siblingProvidersRetainIndependently() = runComposeUiTest {
     val viewModelStoreOwner = TestViewModelStoreOwner()
     val firstInitializer = TrackingValueInitializer()
     val secondInitializer = TrackingValueInitializer()
     try {
-      val firstHost =
-        runSiblingProviderHost(viewModelStoreOwner, firstInitializer, secondInitializer)
-      val secondHost =
-        runSiblingProviderHost(viewModelStoreOwner, firstInitializer, secondInitializer)
+      var showContent by mutableStateOf(false)
+      var first: TrackingValue? = null
+      var second: TrackingValue? = null
 
-      assertSame(firstHost.first, secondHost.first)
-      assertSame(firstHost.second, secondHost.second)
-      assertNotSame(firstHost.second, firstHost.first)
+      setContent {
+        if (showContent) {
+          CompositionLocalProvider(
+            LocalRetainedValuesStore provides ForgetfulRetainedValuesStore,
+            LocalViewModelStoreOwner provides viewModelStoreOwner,
+          ) {
+            SiblingProviderContent(
+              firstInitializer = firstInitializer,
+              secondInitializer = secondInitializer,
+              onFirst = { first = it },
+              onSecond = { second = it },
+            )
+          }
+        }
+      }
+
+      showContent = true
+      waitForIdle()
+      val firstHost1 = requireNotNull(first)
+      val secondHost1 = requireNotNull(second)
+
+      showContent = false
+      waitForIdle()
+      first = null
+      second = null
+      showContent = true
+      waitForIdle()
+      val firstHost2 = requireNotNull(first)
+      val secondHost2 = requireNotNull(second)
+
+      assertSame(firstHost1, firstHost2)
+      assertSame(secondHost1, secondHost2)
+      assertNotSame(secondHost1, firstHost1)
       assertEquals(1, firstInitializer.count)
       assertEquals(1, secondInitializer.count)
 
+      showContent = false
+      waitForIdle()
+
       viewModelStoreOwner.viewModelStore.clear()
-      assertEquals(1, firstHost.first.retiredCount)
-      assertEquals(1, firstHost.second.retiredCount)
+      assertEquals(1, firstHost1.retiredCount)
+      assertEquals(1, secondHost1.retiredCount)
     } finally {
       viewModelStoreOwner.viewModelStore.clear()
     }
   }
 
   @Test
-  fun repeatedProvidersAtTheSamePositionRetainIndependently() {
+  fun repeatedProvidersAtTheSamePositionRetainIndependently() = runComposeUiTest {
     val owner = RetainedValuesStoreOwner()
     val initializers = listOf(TrackingValueInitializer(), TrackingValueInitializer())
     try {
-      val firstHost = runRepeatedProviderHost(owner, initializers)
-      val secondHost = runRepeatedProviderHost(owner, initializers)
+      var showContent by mutableStateOf(false)
+      val values = arrayOfNulls<TrackingValue>(initializers.size)
 
-      assertSame(firstHost[0], secondHost[0])
-      assertSame(firstHost[1], secondHost[1])
-      assertNotSame(firstHost[1], firstHost[0])
+      setContent {
+        if (showContent) {
+          CompositionLocalProvider(
+            LocalRetainedValuesStore provides ForgetfulRetainedValuesStore,
+            LocalViewModelStoreOwner provides ThrowingViewModelStoreOwner,
+          ) {
+            RepeatedProviderContent(owner, initializers) { index, value ->
+              values[index] = value
+            }
+          }
+        }
+      }
+
+      showContent = true
+      waitForIdle()
+      val first0 = requireNotNull(values[0])
+      val first1 = requireNotNull(values[1])
+
+      showContent = false
+      waitForIdle()
+      values[0] = null
+      values[1] = null
+      showContent = true
+      waitForIdle()
+      val second0 = requireNotNull(values[0])
+      val second1 = requireNotNull(values[1])
+
+      assertSame(first0, second0)
+      assertSame(first1, second1)
+      assertNotSame(first1, first0)
       assertEquals(1, initializers[0].count)
       assertEquals(1, initializers[1].count)
 
+      showContent = false
+      waitForIdle()
+
       owner.dispose()
-      assertEquals(1, firstHost[0].retiredCount)
-      assertEquals(1, firstHost[1].retiredCount)
+      assertEquals(1, first0.retiredCount)
+      assertEquals(1, first1.retiredCount)
     } finally {
       owner.dispose()
     }
   }
 
   @Test
-  fun separateOwnersPreserveIndependentRootsWhenRecreatedInDifferentOrder() {
+  fun separateOwnersPreserveIndependentRootsWhenRecreatedInDifferentOrder() = runComposeUiTest {
     val firstOwner = RetainedValuesStoreOwner()
     val secondOwner = RetainedValuesStoreOwner()
     val firstInitializer = TrackingValueInitializer()
     val secondInitializer = TrackingValueInitializer()
     try {
-      val firstRoot =
-        runSingleProviderHost(firstOwner, ThrowingViewModelStoreOwner, firstInitializer)
-      val secondRoot =
-        runSingleProviderHost(secondOwner, ThrowingViewModelStoreOwner, secondInitializer)
+      var currentTarget by
+        mutableStateOf<Pair<RetainedValuesStoreOwner, TrackingValueInitializer>?>(null)
+      var currentValue: TrackingValue? = null
 
-      val recreatedSecondRoot =
-        runSingleProviderHost(secondOwner, ThrowingViewModelStoreOwner, secondInitializer)
-      val recreatedFirstRoot =
-        runSingleProviderHost(firstOwner, ThrowingViewModelStoreOwner, firstInitializer)
+      setContent {
+        currentTarget?.let { (owner, initializer) ->
+          CompositionLocalProvider(
+            LocalRetainedValuesStore provides ForgetfulRetainedValuesStore,
+            LocalViewModelStoreOwner provides ThrowingViewModelStoreOwner,
+          ) {
+            SingleProviderContent(owner, initializer) { currentValue = it }
+          }
+        }
+      }
+
+      fun render(
+        owner: RetainedValuesStoreOwner,
+        initializer: TrackingValueInitializer,
+      ): TrackingValue {
+        currentTarget = null
+        waitForIdle()
+        currentValue = null
+        currentTarget = owner to initializer
+        waitForIdle()
+        return requireNotNull(currentValue)
+      }
+
+      val firstRoot = render(firstOwner, firstInitializer)
+      val secondRoot = render(secondOwner, secondInitializer)
+
+      val recreatedSecondRoot = render(secondOwner, secondInitializer)
+      val recreatedFirstRoot = render(firstOwner, firstInitializer)
 
       assertSame(firstRoot, recreatedFirstRoot)
       assertSame(secondRoot, recreatedSecondRoot)
@@ -174,73 +309,6 @@ class RetainedValuesStoreProviderTest {
       firstOwner.dispose()
       secondOwner.dispose()
     }
-  }
-
-  private fun runSingleProviderHost(
-    owner: RetainedValuesStoreOwner?,
-    viewModelStoreOwner: ViewModelStoreOwner,
-    initializer: TrackingValueInitializer,
-  ): TrackingValue {
-    lateinit var value: TrackingValue
-    runComposeUiTest {
-      setContent {
-        CompositionLocalProvider(
-          LocalRetainedValuesStore provides ForgetfulRetainedValuesStore,
-          LocalViewModelStoreOwner provides viewModelStoreOwner,
-        ) {
-          SingleProviderContent(owner, initializer) { value = it }
-        }
-      }
-      waitForIdle()
-    }
-    return value
-  }
-
-  private fun runSiblingProviderHost(
-    viewModelStoreOwner: ViewModelStoreOwner,
-    firstInitializer: TrackingValueInitializer,
-    secondInitializer: TrackingValueInitializer,
-  ): Pair<TrackingValue, TrackingValue> {
-    lateinit var first: TrackingValue
-    lateinit var second: TrackingValue
-    runComposeUiTest {
-      setContent {
-        CompositionLocalProvider(
-          LocalRetainedValuesStore provides ForgetfulRetainedValuesStore,
-          LocalViewModelStoreOwner provides viewModelStoreOwner,
-        ) {
-          SiblingProviderContent(
-            firstInitializer = firstInitializer,
-            secondInitializer = secondInitializer,
-            onFirst = { first = it },
-            onSecond = { second = it },
-          )
-        }
-      }
-      waitForIdle()
-    }
-    return first to second
-  }
-
-  private fun runRepeatedProviderHost(
-    owner: RetainedValuesStoreOwner,
-    initializers: List<TrackingValueInitializer>,
-  ): List<TrackingValue> {
-    val values = arrayOfNulls<TrackingValue>(initializers.size)
-    runComposeUiTest {
-      setContent {
-        CompositionLocalProvider(
-          LocalRetainedValuesStore provides ForgetfulRetainedValuesStore,
-          LocalViewModelStoreOwner provides ThrowingViewModelStoreOwner,
-        ) {
-          RepeatedProviderContent(owner, initializers) { index, value ->
-            values[index] = value
-          }
-        }
-      }
-      waitForIdle()
-    }
-    return values.map(::requireNotNull)
   }
 }
 

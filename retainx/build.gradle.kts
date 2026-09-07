@@ -23,7 +23,9 @@ kotlin {
     namespace = "com.retainx"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     minSdk = libs.versions.android.minSdk.get().toInt()
-    withHostTest {}
+    withHostTest {
+      isIncludeAndroidResources = true
+    }
 
     lint {
       warningsAsErrors = true
@@ -57,11 +59,25 @@ kotlin {
   // Web / Wasm Targets
   @OptIn(ExperimentalWasmDsl::class)
   wasmJs {
-    browser()
+    browser {
+      testTask {
+        useKarma {
+          useChromeHeadless()
+          useConfigDirectory(project.projectDir.resolve("karma.config.d"))
+        }
+      }
+    }
     binaries.executable()
   }
   js {
-    browser()
+    browser {
+      testTask {
+        useKarma {
+          useChromeHeadless()
+          useConfigDirectory(project.projectDir.resolve("karma.config.d"))
+        }
+      }
+    }
     binaries.executable()
   }
 
@@ -119,6 +135,8 @@ kotlin {
     getByName("androidHostTest").apply {
       dependencies {
         implementation(libs.robolectric)
+        implementation(libs.activity.compose)
+        implementation(libs.androidx.test.espresso.core)
       }
     }
     jvmTest {
@@ -126,23 +144,69 @@ kotlin {
         implementation(compose.desktop.currentOs)
       }
     }
-    iosTest { dependencies { dependsOn(sharedTest) } }
-    macosTest {
-      dependencies {
-        dependsOn(sharedTest)
-      }
-    }
-    jsTest {
-      dependencies { dependsOn(sharedTest) }
-    }
-    wasmJsTest {
-      dependencies {
-        dependsOn(sharedTest)
-      }
-    }
+    iosTest { dependsOn(sharedTest) }
+    macosTest { dependsOn(sharedTest) }
+    jsTest { dependsOn(sharedTest) }
+    wasmJsTest { dependsOn(sharedTest) }
   }
+}
+
+tasks.withType<Test>().configureEach {
+  jvmArgs(
+    "--add-opens=java.base/java.lang=ALL-UNNAMED",
+    "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
+    "--add-opens=java.base/java.io=ALL-UNNAMED",
+    "--add-opens=java.base/java.util=ALL-UNNAMED",
+    "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
+    "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED",
+    "--add-opens=java.base/sun.security.x509=ALL-UNNAMED",
+  )
 }
 
 dependencies {
   lintChecks(libs.slack.compose.lint)
 }
+
+val skikoWasmRuntime = configurations.create("skikoWasmRuntime")
+
+dependencies {
+  skikoWasmRuntime("org.jetbrains.skiko:skiko-js-wasm-runtime:0.150.1")
+}
+
+abstract class UnzipSkikoWasmTask
+@javax.inject.Inject
+constructor(
+  private val archiveOperations: ArchiveOperations,
+  private val fileSystemOperations: FileSystemOperations,
+) : DefaultTask() {
+  @get:InputFiles
+  @get:PathSensitive(PathSensitivity.RELATIVE)
+  abstract val inputFiles: ConfigurableFileCollection
+
+  @get:OutputDirectory abstract val outputDir: DirectoryProperty
+
+  @TaskAction
+  fun unzip() {
+    fileSystemOperations.sync {
+      inputFiles.forEach { jarFile ->
+        from(archiveOperations.zipTree(jarFile)) {
+          include("*.wasm", "*.mjs")
+        }
+      }
+      into(outputDir)
+    }
+  }
+}
+
+val unzipSkikoWasm =
+  tasks.register<UnzipSkikoWasmTask>("unzipSkikoWasm") {
+    inputFiles.from(skikoWasmRuntime)
+    outputDir.set(layout.buildDirectory.dir("skikoWasmExtracted"))
+  }
+
+tasks
+  .matching { it.name in listOf("jsTestProcessResources", "wasmJsTestProcessResources") }
+  .configureEach {
+    dependsOn(unzipSkikoWasm)
+    (this as? Copy)?.from(unzipSkikoWasm.flatMap { it.outputDir })
+  }
