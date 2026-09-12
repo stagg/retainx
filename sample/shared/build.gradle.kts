@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Josh Stagg
 // SPDX-License-Identifier: MIT
 plugins {
+  id("retainx.base")
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
@@ -8,24 +9,12 @@ plugins {
 }
 
 kotlin {
-  jvmToolchain(23)
-
-  compilerOptions {
-    allWarningsAsErrors.set(true)
-  }
-
   android {
     namespace = "com.retainx.sample.shared"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    minSdk = libs.versions.android.minSdk.get().toInt()
     withHostTest {}
   }
 
-  jvm {
-    compilerOptions {
-      jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
-    }
-  }
+  jvm()
 
   listOf(
       iosArm64(),

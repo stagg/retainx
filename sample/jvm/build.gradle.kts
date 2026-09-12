@@ -1,13 +1,10 @@
 // Copyright (C) 2026 Josh Stagg
 // SPDX-License-Identifier: MIT
 plugins {
+  id("retainx.base")
   kotlin("jvm")
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
-}
-
-kotlin {
-  jvmToolchain(23)
 }
 
 dependencies {

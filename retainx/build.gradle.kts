@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 // Copyright (C) 2026 Josh Stagg
 // SPDX-License-Identifier: MIT
 plugins {
+  id("retainx.base")
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
@@ -12,34 +13,16 @@ plugins {
 }
 
 kotlin {
-  jvmToolchain(23)
-
-  compilerOptions {
-    allWarningsAsErrors.set(true)
-  }
-
   // Android Target via AGP KMP library plugin
   android {
     namespace = "com.retainx"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    minSdk = libs.versions.android.minSdk.get().toInt()
     withHostTest {
       isIncludeAndroidResources = true
-    }
-
-    lint {
-      warningsAsErrors = true
-      checkTestSources = true
-      lintConfig = rootProject.file("config/lint/lint.xml")
     }
   }
 
   // JVM / Desktop Target
-  jvm {
-    compilerOptions {
-      jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
-    }
-  }
+  jvm()
 
   // Native Desktop Targets
   linuxArm64()
@@ -92,13 +75,6 @@ kotlin {
     }
   }
 
-  targets.configureEach {
-    compilations.configureEach {
-      compileTaskProvider.configure {
-        compilerOptions { freeCompilerArgs.add("-Xexpect-actual-classes") }
-      }
-    }
-  }
 
   sourceSets {
     commonMain.dependencies {
@@ -150,63 +126,3 @@ kotlin {
     wasmJsTest { dependsOn(sharedTest) }
   }
 }
-
-tasks.withType<Test>().configureEach {
-  jvmArgs(
-    "--add-opens=java.base/java.lang=ALL-UNNAMED",
-    "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
-    "--add-opens=java.base/java.io=ALL-UNNAMED",
-    "--add-opens=java.base/java.util=ALL-UNNAMED",
-    "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
-    "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED",
-    "--add-opens=java.base/sun.security.x509=ALL-UNNAMED",
-  )
-}
-
-dependencies {
-  lintChecks(libs.slack.compose.lint)
-}
-
-val skikoWasmRuntime = configurations.create("skikoWasmRuntime")
-
-dependencies {
-  skikoWasmRuntime(libs.skiko.js.wasm.runtime)
-}
-
-abstract class UnzipSkikoWasmTask
-@javax.inject.Inject
-constructor(
-  private val archiveOperations: ArchiveOperations,
-  private val fileSystemOperations: FileSystemOperations,
-) : DefaultTask() {
-  @get:InputFiles
-  @get:PathSensitive(PathSensitivity.RELATIVE)
-  abstract val inputFiles: ConfigurableFileCollection
-
-  @get:OutputDirectory abstract val outputDir: DirectoryProperty
-
-  @TaskAction
-  fun unzip() {
-    fileSystemOperations.sync {
-      inputFiles.forEach { jarFile ->
-        from(archiveOperations.zipTree(jarFile)) {
-          include("*.wasm", "*.mjs")
-        }
-      }
-      into(outputDir)
-    }
-  }
-}
-
-val unzipSkikoWasm =
-  tasks.register<UnzipSkikoWasmTask>("unzipSkikoWasm") {
-    inputFiles.from(skikoWasmRuntime)
-    outputDir.set(layout.buildDirectory.dir("skikoWasmExtracted"))
-  }
-
-tasks
-  .matching { it.name in listOf("jsTestProcessResources", "wasmJsTestProcessResources") }
-  .configureEach {
-    dependsOn(unzipSkikoWasm)
-    (this as? Copy)?.from(unzipSkikoWasm.flatMap { it.outputDir })
-  }
