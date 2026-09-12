@@ -24,17 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 23 (Kotlin Toolchain)
+      - name: Set up JDK 23
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '23'
-
-      - name: Set up JDK 25 (Gradle Daemon)
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '25'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
@@ -57,17 +51,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 23 (Kotlin Toolchain)
+      - name: Set up JDK 23
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '23'
-
-      - name: Set up JDK 25 (Gradle Daemon)
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '25'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
@@ -88,17 +76,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 23 (Kotlin Toolchain)
+      - name: Set up JDK 23
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '23'
-
-      - name: Set up JDK 25 (Gradle Daemon)
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '25'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
