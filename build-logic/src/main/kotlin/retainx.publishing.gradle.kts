@@ -7,5 +7,5 @@ plugins {
 }
 
 configure<MavenPublishBaseExtension> {
-  publishToMavenCentral()
+  publishToMavenCentral(automaticRelease = true)
 }
