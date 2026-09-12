@@ -1,0 +1,120 @@
+name: CI
+
+'on':
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  kempt:
+    name: Kempt Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '23'
+
+      - name: Run Kempt Check
+        uses: ZacSweers/kempt@v0.3.1
+        with:
+          cache: true
+
+  build-non-apple:
+    name: Build & Test (Non-Apple)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 23 (Kotlin Toolchain)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '23'
+
+      - name: Set up JDK 25 (Gradle Daemon)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '25'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Checks & Tests
+        run: ./gradlew check
+
+      - name: Build Everything (Non-Apple)
+        run: ./gradlew assemble
+
+  build-apple:
+    name: Build & Test (Apple)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 23 (Kotlin Toolchain)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '23'
+
+      - name: Set up JDK 25 (Gradle Daemon)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '25'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Cache Konan
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.konan/cache
+            ~/.konan/dependencies
+            ~/.konan/kotlin-native-macos*
+            ~/.konan/kotlin-native-prebuilt-macos*
+          key: ${{ runner.os }}-konan-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-konan-
+
+      - name: Run Apple Checks & Tests
+        run: ./gradlew :retainx:macosArm64Test :retainx:iosSimulatorArm64Test
+
+      - name: Build Apple Targets & Frameworks
+        run: |
+          ./gradlew \
+            :retainx:compileKotlinIosArm64 \
+            :retainx:compileKotlinIosSimulatorArm64 \
+            :retainx:compileKotlinWatchosArm32 \
+            :retainx:compileKotlinWatchosArm64 \
+            :retainx:compileKotlinWatchosSimulatorArm64 \
+            :retainx:compileKotlinTvosArm64 \
+            :retainx:compileKotlinTvosSimulatorArm64 \
+            :retainx:compileKotlinMacosArm64 \
+            :sample:shared:assemble
