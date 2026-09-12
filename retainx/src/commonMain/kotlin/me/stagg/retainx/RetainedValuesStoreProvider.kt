@@ -42,6 +42,8 @@ public fun RetainedValuesStoreProvider(
   LocalRetainedValuesStoreProvider(lease.store, content)
 }
 
+// TODO add withRetainedValuesStoreProvider once withLocalRetainedValuesStore lands
+
 internal inline fun resolveRetainedValuesStoreOwner(
   owner: RetainedValuesStoreOwner?,
   automaticOwner: () -> RetainedValuesStoreOwner?,
