@@ -170,7 +170,7 @@ dependencies {
 val skikoWasmRuntime = configurations.create("skikoWasmRuntime")
 
 dependencies {
-  skikoWasmRuntime("org.jetbrains.skiko:skiko-js-wasm-runtime:0.150.1")
+  skikoWasmRuntime(libs.skiko.js.wasm.runtime)
 }
 
 abstract class UnzipSkikoWasmTask

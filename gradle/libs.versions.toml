@@ -1,13 +1,17 @@
 [versions]
 activity-compose = "1.13.0"
-kotlin = "2.4.10"
-compose = "1.12.0"
+agp = "9.4.0"
+androidx-annotation = "1.9.1"
+androidx-collection = "1.5.0"
+androidx-navigationevent = "1.1.1"
+androidx-savedstate = "1.4.0"
+compose = "1.12.1"
 compose-multiplatform = "1.12.0"
+kotlin = "2.4.20"
 lifecycle = "2.11.0"
-agp = "9.3.2"
-kotlinx-coroutines = "1.11.0"
+robolectric = "4.17"
+skikoJsWasmRuntime = "0.150.1"
 slack-compose-lint = "1.6.0"
-robolectric = "4.17-beta-4"
 
 android-minSdk = "23"
 android-compileSdk = "37"
@@ -15,9 +19,14 @@ android-targetSdk = "37"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidx-annotation" }
+androidx-collection = { module = "androidx.collection:collection", version.ref = "androidx-collection" }
+androidx-savedstate = { module = "androidx.savedstate:savedstate", version.ref = "androidx-savedstate" }
+androidx-savedstate-compose = { module = "androidx.savedstate:savedstate-compose", version.ref = "androidx-savedstate" }
+androidx-navigationevent-compose = { module = "androidx.navigationevent:navigationevent-compose", version.ref = "androidx-navigationevent" }
+skiko-js-wasm-runtime = { module = "org.jetbrains.skiko:skiko-js-wasm-runtime", version.ref = "skikoJsWasmRuntime" }
 slack-compose-lint = { module = "com.slack.lint.compose:compose-lint-checks", version.ref = "slack-compose-lint" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version = "3.7.0" }
 
@@ -28,7 +37,6 @@ compose-runtime-retain = { module = "androidx.compose.runtime:runtime-retain", v
 # Compose Multiplatform dependencies
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version = "1.12.0-alpha03" }
-compose-desktop = { module = "org.jetbrains.compose.desktop:desktop", version.ref = "compose-multiplatform" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-multiplatform" }
 compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "compose-multiplatform" }
 compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose-multiplatform" }

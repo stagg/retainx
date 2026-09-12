@@ -54,3 +54,18 @@ kotlin {
     }
   }
 }
+
+configurations.configureEach {
+  resolutionStrategy.dependencySubstitution {
+    substitute(module("org.jetbrains.compose.collection-internal:collection"))
+      .using(module("${libs.androidx.collection.get()}"))
+    substitute(module("org.jetbrains.compose.annotation-internal:annotation"))
+      .using(module("${libs.androidx.annotation.get()}"))
+    substitute(module("org.jetbrains.androidx.savedstate:savedstate"))
+      .using(module("${libs.androidx.savedstate.asProvider().get()}"))
+    substitute(module("org.jetbrains.androidx.savedstate:savedstate-compose"))
+      .using(module("${libs.androidx.savedstate.compose.get()}"))
+    substitute(module("org.jetbrains.androidx.navigationevent:navigationevent-compose"))
+      .using(module("${libs.androidx.navigationevent.compose.get()}"))
+  }
+}
