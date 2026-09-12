@@ -12,4 +12,4 @@ file = "config/license-header.txt"
 excludes = "config/license-header-excludes-kt.txt"
 
 [hook]
-mode = "format"
+mode = "check"

@@ -5,5 +5,4 @@ package me.stagg.retainx
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
-actual abstract class BaseComposeTest actual constructor()
+@RunWith(RobolectricTestRunner::class) actual abstract class BaseComposeTest actual constructor()
