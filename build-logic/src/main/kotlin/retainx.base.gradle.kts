@@ -6,7 +6,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinNativeCompilerOptions
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
 import org.jetbrains.kotlin.gradle.targets.js.ir.DefaultIncrementalSyncTask
 import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
@@ -14,7 +13,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 val catalog = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
 val jvmTargetVersion = catalog.findVersion("jvmTarget").map { it.requiredVersion }.orElse("11")
-val jdkVersion = catalog.findVersion("jdk").map { it.requiredVersion.removeSuffix("-ea").toInt() }.orElse(23)
+val jdkVersion =
+  catalog.findVersion("jdk").map { it.requiredVersion.removeSuffix("-ea").toInt() }.orElse(23)
 
 // Java configuration
 pluginManager.withPlugin("java") {
