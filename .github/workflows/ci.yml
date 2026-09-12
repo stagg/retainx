@@ -72,6 +72,8 @@ jobs:
   build-apple:
     name: Build & Test (Apple)
     runs-on: macos-latest
+    env:
+      GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx6g -XX:+UseG1GC -XX:SoftRefLRUPolicyMSPerMB=1" -Dkotlin.native.jvmArgs="-Xmx6g -XX:+UseG1GC -XX:SoftRefLRUPolicyMSPerMB=1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
