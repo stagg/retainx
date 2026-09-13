@@ -121,6 +121,7 @@ jobs:
   publish-snapshot:
     name: Publish Snapshot
     runs-on: ubuntu-latest
+    environment: stagg
     needs: [lint, build-non-apple, build-apple]
     if: github.repository == 'stagg/retainx' && github.ref == 'refs/heads/main'
     steps:
