@@ -33,6 +33,10 @@ kotlin {
           sdkVersion = 34
           // Automated Test Device images are headless and trimmed down for faster CI runs
           systemImageSource = "aosp-atd"
+          // Match the host so the emulator runs natively: x86_64 on CI, arm64 on Apple silicon
+          testedAbi =
+            if (System.getProperty("os.arch") in setOf("aarch64", "arm64")) "arm64-v8a"
+            else "x86_64"
         }
       }
     }
