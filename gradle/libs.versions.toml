@@ -8,6 +8,7 @@ androidx-savedstate = "1.4.0"
 compose = "1.12.1"
 compose-multiplatform = "1.12.0"
 kotlin = "2.4.20"
+leakcanary = "2.14"
 lifecycle = "2.11.0"
 robolectric = "4.17"
 skikoJsWasmRuntime = "0.150.1"
@@ -39,17 +40,23 @@ androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core",
 # Compose
 compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "compose" }
 compose-runtime-retain = { module = "androidx.compose.runtime:runtime-retain", version.ref = "compose" }
+compose-runtime-saveable = { module = "androidx.compose.runtime:runtime-saveable", version.ref = "compose" }
 
 # Compose Multiplatform dependencies
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version = "1.12.0-alpha03" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-multiplatform" }
 compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "compose-multiplatform" }
+compose-ui-testing-junit = { module = "org.jetbrains.compose.ui:ui-test-junit4", version.ref = "compose-multiplatform" }
 compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose-multiplatform" }
 
 # Lifecycle Mutliplatform
 lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 lifecycle-viewModel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+
+
+# Testing
+leakcanary-android-instrumentation = { module = "com.squareup.leakcanary:leakcanary-android-instrumentation", version.ref = "leakcanary" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

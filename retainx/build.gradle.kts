@@ -79,6 +79,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(libs.compose.runtime.retain)
+      api(libs.compose.runtime.saveable)
     }
 
     val sharedMain =
@@ -110,9 +111,12 @@ kotlin {
       }
     getByName("androidHostTest").apply {
       dependencies {
-        implementation(libs.robolectric)
         implementation(libs.activity.compose)
         implementation(libs.androidx.test.espresso.core)
+        implementation(libs.compose.foundation)
+        implementation(libs.compose.ui.testing.junit)
+        implementation(libs.leakcanary.android.instrumentation)
+        implementation(libs.robolectric)
       }
     }
     jvmTest {

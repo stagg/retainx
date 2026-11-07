@@ -4,3 +4,4 @@
 **/CollectRetain.kt
 **/ProduceRetainState.kt
 **/Retain.kt
+**/RetainSaveableTest.kt
