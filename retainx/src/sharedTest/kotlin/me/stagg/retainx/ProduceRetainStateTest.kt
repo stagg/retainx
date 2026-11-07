@@ -7,9 +7,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runComposeUiTest
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -281,5 +288,127 @@ class ProduceRetainStateTest : BaseComposeTest() {
 
     assertEquals(1, disposed)
     harness.dispose()
+  }
+
+  @Test
+  fun produceRetainStateRunsProducerInContext() = runComposeUiTest {
+    val harness = RecreationHarness(this)
+    val names = mutableMapOf<String, String?>()
+    var key by mutableStateOf(1)
+    harness.setContent {
+      produceRetainState(0, context = CoroutineName("none")) {
+        names["none"] = coroutineContext[CoroutineName]?.name
+      }
+      produceRetainState(0, key, context = CoroutineName("key1")) {
+        names["key1"] = coroutineContext[CoroutineName]?.name
+      }
+      produceRetainState(0, key, 2, context = CoroutineName("key2")) {
+        names["key2"] = coroutineContext[CoroutineName]?.name
+      }
+      produceRetainState(0, key, 2, 3, context = CoroutineName("key3")) {
+        names["key3"] = coroutineContext[CoroutineName]?.name
+      }
+      produceRetainState(0, key, 2, 3, 4, context = CoroutineName("vararg")) {
+        names["vararg"] = coroutineContext[CoroutineName]?.name
+      }
+    }
+    val expected: Map<String, String?> =
+      listOf("none", "key1", "key2", "key3", "vararg").associateWith { it }
+    assertEquals(expected, names)
+
+    // Relaunching for a new key keeps the context
+    names.clear()
+    key = 2
+    waitForIdle()
+    assertEquals(expected - "none", names)
+    harness.dispose()
+  }
+
+  @Test
+  fun produceRetainStateRunsOnGivenDispatcher() = runComposeUiTest {
+    val harness = RecreationHarness(this)
+    val dispatcher = CountingDispatcher()
+    var state = 0
+    harness.setContent {
+      state = produceRetainState(0, context = dispatcher) { value = 42 }.value
+    }
+    assertEquals(42, state)
+
+    assertTrue(dispatcher.dispatches > 0)
+    harness.dispose()
+  }
+
+  @Test
+  fun produceRetainStateIgnoresJobInContext() = runComposeUiTest {
+    val harness = RecreationHarness(this)
+    val job = Job()
+    var show by mutableStateOf(true)
+    var disposed = 0
+    harness.setContent {
+      if (show) {
+        produceRetainState(0, context = job + CoroutineName("producer")) {
+          awaitDispose { disposed++ }
+        }
+      }
+    }
+
+    // Leaving composition still cancels the producer, and the passed Job is untouched
+    show = false
+    waitForIdle()
+    assertEquals(1, disposed)
+    assertTrue(job.isActive)
+    job.cancel()
+    harness.dispose()
+  }
+
+  @Test
+  fun produceAndCollectRunsProducerAndCollectionInContext() = runComposeUiTest {
+    val harness = RecreationHarness(this)
+    var producerName: String? = null
+    var state: String? = null
+    harness.setContent {
+      state =
+        produceAndCollectAsRetainState<String?, String?>(
+            initial = "initial",
+            context = CoroutineName("produce"),
+            producer = {
+              producerName = currentCoroutineContext()[CoroutineName]?.name
+              flow { emit(currentCoroutineContext()[CoroutineName]?.name) }
+            },
+          )
+          .value
+    }
+
+    assertEquals("produce", producerName)
+    assertEquals("produce", state)
+    harness.dispose()
+  }
+
+  @Test
+  fun collectAsRetainStateCollectsInContext() = runComposeUiTest {
+    val harness = RecreationHarness(this)
+    val testFlow = flow { emit(currentCoroutineContext()[CoroutineName]?.name) }
+    var state: String? = null
+    harness.setContent {
+      state =
+        testFlow.collectAsRetainState(initial = null, context = CoroutineName("collect")).value
+    }
+
+    assertEquals("collect", state)
+    harness.dispose()
+  }
+}
+
+/**
+ * Counts dispatches so tests can tell work ran on it. Runs work right away, since browser tests
+ * can't wait on a background dispatcher.
+ */
+private class CountingDispatcher : CoroutineDispatcher() {
+  var dispatches = 0
+    private set
+
+  override fun dispatch(context: CoroutineContext, block: Runnable) {
+    dispatches++
+    block.run()
   }
 }

@@ -10,7 +10,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.retain
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 
 /**
  * Return an observable [snapshot][androidx.compose.runtime.snapshots.Snapshot] [State] that
@@ -19,6 +23,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * [producer] is launched when [produceRetainState] enters the composition and is cancelled when
  * [produceRetainState] leaves the composition. [producer] should use [ProduceStateScope.value] to
  * set new values on the returned [State].
+ *
+ * By default [producer] runs on the composition's dispatcher. Pass a [context], such as a
+ * background dispatcher, to run it there instead. Setting [ProduceStateScope.value] from any thread
+ * is safe. Any [Job] in [context] is ignored so [producer] is still cancelled with the composition.
  *
  * The returned [State] conflates values; no change will be observable if [ProduceStateScope.value]
  * is used to set a value that is [equal][Any.equals] to its old value, and observers may only see
@@ -41,10 +49,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @Composable
 public fun <T> produceRetainState(
   initialValue: T,
+  context: CoroutineContext = EmptyCoroutineContext,
   producer: suspend ProduceStateScope<T>.() -> Unit,
 ): State<T> {
   val result = retain { mutableStateOf(initialValue) }
-  LaunchedEffect(Unit) { ProduceRetainStateScopeImpl(result, coroutineContext).producer() }
+  LaunchedEffect(Unit) { runProducer(result, context, producer) }
   return result
 }
 
@@ -56,6 +65,10 @@ public fun <T> produceRetainState(
  * [produceRetainState] leaves the composition. If [key1] changes, a running [producer] will be
  * cancelled and re-launched for the new source. [producer] should use [ProduceStateScope.value] to
  * set new values on the returned [State].
+ *
+ * By default [producer] runs on the composition's dispatcher. Pass a [context], such as a
+ * background dispatcher, to run it there instead. Setting [ProduceStateScope.value] from any thread
+ * is safe. Any [Job] in [context] is ignored so [producer] is still cancelled with the composition.
  *
  * The returned [State] conflates values; no change will be observable if [ProduceStateScope.value]
  * is used to set a value that is [equal][Any.equals] to its old value, and observers may only see
@@ -79,10 +92,11 @@ public fun <T> produceRetainState(
 public fun <T> produceRetainState(
   initialValue: T,
   key1: Any?,
+  context: CoroutineContext = EmptyCoroutineContext,
   producer: suspend ProduceStateScope<T>.() -> Unit,
 ): State<T> {
   val result = retain { mutableStateOf(initialValue) }
-  LaunchedEffect(key1) { ProduceRetainStateScopeImpl(result, coroutineContext).producer() }
+  LaunchedEffect(key1) { runProducer(result, context, producer) }
   return result
 }
 
@@ -94,6 +108,10 @@ public fun <T> produceRetainState(
  * [produceRetainState] leaves the composition. If [key1] or [key2] change, a running [producer]
  * will be cancelled and re-launched for the new source. [producer] should use
  * [ProduceStateScope.value] to set new values on the returned [State].
+ *
+ * By default [producer] runs on the composition's dispatcher. Pass a [context], such as a
+ * background dispatcher, to run it there instead. Setting [ProduceStateScope.value] from any thread
+ * is safe. Any [Job] in [context] is ignored so [producer] is still cancelled with the composition.
  *
  * The returned [State] conflates values; no change will be observable if [ProduceStateScope.value]
  * is used to set a value that is [equal][Any.equals] to its old value, and observers may only see
@@ -118,10 +136,11 @@ public fun <T> produceRetainState(
   initialValue: T,
   key1: Any?,
   key2: Any?,
+  context: CoroutineContext = EmptyCoroutineContext,
   producer: suspend ProduceStateScope<T>.() -> Unit,
 ): State<T> {
   val result = retain { mutableStateOf(initialValue) }
-  LaunchedEffect(key1, key2) { ProduceRetainStateScopeImpl(result, coroutineContext).producer() }
+  LaunchedEffect(key1, key2) { runProducer(result, context, producer) }
   return result
 }
 
@@ -131,8 +150,12 @@ public fun <T> produceRetainState(
  *
  * [producer] is launched when [produceRetainState] enters the composition and is cancelled when
  * [produceRetainState] leaves the composition. If [key1], [key2] or [key3] change, a running
- * [producer] will be cancelled and re-launched for the new source.
- * [producer should use [ProduceStateScope.value] to set new values on the returned [State].
+ * [producer] will be cancelled and re-launched for the new source. [producer] should use
+ * [ProduceStateScope.value] to set new values on the returned [State].
+ *
+ * By default [producer] runs on the composition's dispatcher. Pass a [context], such as a
+ * background dispatcher, to run it there instead. Setting [ProduceStateScope.value] from any thread
+ * is safe. Any [Job] in [context] is ignored so [producer] is still cancelled with the composition.
  *
  * The returned [State] conflates values; no change will be observable if [ProduceStateScope.value]
  * is used to set a value that is [equal][Any.equals] to its old value, and observers may only see
@@ -158,12 +181,11 @@ public fun <T> produceRetainState(
   key1: Any?,
   key2: Any?,
   key3: Any?,
+  context: CoroutineContext = EmptyCoroutineContext,
   producer: suspend ProduceStateScope<T>.() -> Unit,
 ): State<T> {
   val result = retain { mutableStateOf(initialValue) }
-  LaunchedEffect(key1, key2, key3) {
-    ProduceRetainStateScopeImpl(result, coroutineContext).producer()
-  }
+  LaunchedEffect(key1, key2, key3) { runProducer(result, context, producer) }
   return result
 }
 
@@ -175,6 +197,10 @@ public fun <T> produceRetainState(
  * [produceRetainState] leaves the composition. If [keys] change, a running [producer] will be
  * cancelled and re-launched for the new source. [producer] should use [ProduceStateScope.value] to
  * set new values on the returned [State].
+ *
+ * By default [producer] runs on the composition's dispatcher. Pass a [context], such as a
+ * background dispatcher, to run it there instead. Setting [ProduceStateScope.value] from any thread
+ * is safe. Any [Job] in [context] is ignored so [producer] is still cancelled with the composition.
  *
  * The returned [State] conflates values; no change will be observable if [ProduceStateScope.value]
  * is used to set a value that is [equal][Any.equals] to its old value, and observers may only see
@@ -198,11 +224,26 @@ public fun <T> produceRetainState(
 public fun <T> produceRetainState(
   initialValue: T,
   vararg keys: Any?,
+  context: CoroutineContext = EmptyCoroutineContext,
   producer: suspend ProduceStateScope<T>.() -> Unit,
 ): State<T> {
   val result = retain { mutableStateOf(initialValue) }
-  LaunchedEffect(keys = keys) { ProduceRetainStateScopeImpl(result, coroutineContext).producer() }
+  LaunchedEffect(keys = keys) { runProducer(result, context, producer) }
   return result
+}
+
+private suspend fun <T> CoroutineScope.runProducer(
+  state: MutableState<T>,
+  context: CoroutineContext,
+  producer: suspend ProduceStateScope<T>.() -> Unit,
+) {
+  if (context == EmptyCoroutineContext) {
+    ProduceRetainStateScopeImpl(state, coroutineContext).producer()
+  } else {
+    withContext(context.minusKey(Job)) {
+      ProduceRetainStateScopeImpl(state, coroutineContext).producer()
+    }
+  }
 }
 
 private class ProduceRetainStateScopeImpl<T>(
