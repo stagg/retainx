@@ -22,6 +22,14 @@ kotlin {
     }
     withDeviceTest {
       instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+      managedDevices {
+        localDevices.create("pixel6Api34") {
+          device = "Pixel 6"
+          sdkVersion = 34
+          // Automated Test Device images are headless and trimmed down for faster CI runs
+          systemImageSource = "aosp-atd"
+        }
+      }
     }
   }
 
