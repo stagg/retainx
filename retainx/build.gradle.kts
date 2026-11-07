@@ -11,6 +11,7 @@ plugins {
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.android.kotlin.multiplatform.library)
+  alias(libs.plugins.dependency.guard)
 }
 
 kotlin {
@@ -154,3 +155,22 @@ tasks
       layout.buildDirectory.dir("generated/compose/androidDeviceTestAssets")
     )
   }
+
+// Baselines for every published target's dependencies. Update with `dependencyGuardBaseline`.
+dependencyGuard {
+  listOf("android", "jvm", "js", "wasmJs").forEach { configuration("${it}RuntimeClasspath") }
+  listOf(
+      "iosArm64",
+      "iosSimulatorArm64",
+      "linuxArm64",
+      "linuxX64",
+      "macosArm64",
+      "mingwX64",
+      "tvosArm64",
+      "tvosSimulatorArm64",
+      "watchosArm32",
+      "watchosArm64",
+      "watchosSimulatorArm64",
+    )
+    .forEach { configuration("${it}CompileKlibraries") }
+}
