@@ -150,19 +150,30 @@ jobs:
             ${{ runner.os }}-konan-
 
       - name: Run Apple Checks & Tests
-        run: ./gradlew :retainx:macosArm64Test :retainx:iosSimulatorArm64Test
+        run: >-
+          ./gradlew
+          :retainx:macosArm64Test :retainx:iosSimulatorArm64Test
+          :retainx-store:macosArm64Test :retainx-store:iosSimulatorArm64Test
 
       - name: Build Apple Targets & Frameworks
         run: |
           ./gradlew \
             :retainx:compileKotlinIosArm64 \
+            :retainx-store:compileKotlinIosArm64 \
             :retainx:compileKotlinIosSimulatorArm64 \
+            :retainx-store:compileKotlinIosSimulatorArm64 \
             :retainx:compileKotlinWatchosArm32 \
+            :retainx-store:compileKotlinWatchosArm32 \
             :retainx:compileKotlinWatchosArm64 \
+            :retainx-store:compileKotlinWatchosArm64 \
             :retainx:compileKotlinWatchosSimulatorArm64 \
+            :retainx-store:compileKotlinWatchosSimulatorArm64 \
             :retainx:compileKotlinTvosArm64 \
+            :retainx-store:compileKotlinTvosArm64 \
             :retainx:compileKotlinTvosSimulatorArm64 \
+            :retainx-store:compileKotlinTvosSimulatorArm64 \
             :retainx:compileKotlinMacosArm64 \
+            :retainx-store:compileKotlinMacosArm64 \
             :sample:shared:assemble
 
   publish-snapshot:
