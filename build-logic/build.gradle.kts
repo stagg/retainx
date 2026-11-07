@@ -6,6 +6,7 @@ plugins {
 
 kotlin {
   jvmToolchain(libs.versions.jdk.get().removeSuffix("-ea").toInt())
+  compilerOptions { allWarningsAsErrors = true }
 }
 
 dependencies {

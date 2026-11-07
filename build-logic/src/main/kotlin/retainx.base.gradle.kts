@@ -24,6 +24,7 @@ pluginManager.withPlugin("java") {
 
   tasks.withType<JavaCompile>().configureEach {
     options.release.set(jvmTargetVersion.toInt())
+    options.compilerArgs.addAll(listOf("-Xlint:all", "-Werror"))
   }
 }
 

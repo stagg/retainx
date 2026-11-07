@@ -32,6 +32,7 @@ pluginManager.withPlugin("com.android.kotlin.multiplatform.library") {
         lint {
           checkTestSources = true
           checkDependencies = false
+          warningsAsErrors = true
           val lintXml = rootProject.file("config/lint/lint.xml")
           if (lintXml.exists()) {
             lintConfig = lintXml
@@ -63,6 +64,7 @@ pluginManager.withPlugin("com.android.application") {
     lint {
       checkTestSources = true
       checkDependencies = false
+      warningsAsErrors = true
       val lintXml = rootProject.file("config/lint/lint.xml")
       if (lintXml.exists()) {
         lintConfig = lintXml
