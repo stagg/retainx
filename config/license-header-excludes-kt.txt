@@ -1,3 +1,6 @@
 **/RetainedValuesStoreOwner*.kt
 **/RetainedValuesStoreProvider*.kt
 **/AutomaticRetainedValuesStoreOwner*.kt
+**/CollectRetain.kt
+**/ProduceRetainState.kt
+**/Retain.kt
