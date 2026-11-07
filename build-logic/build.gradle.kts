@@ -9,7 +9,7 @@ kotlin {
 }
 
 dependencies {
-  compileOnly(libs.kotlin.gradlePlugin)
+  compileOnly(libs.kotlin.gradle.plugin)
   compileOnly(libs.agp)
-  compileOnly(libs.maven.publish.gradlePlugin)
+  compileOnly(libs.maven.publish.gradle.plugin)
 }

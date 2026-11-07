@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 val catalog = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
-val jvmTargetVersion = catalog.findVersion("jvmTarget").map { it.requiredVersion }.orElse("11")
+val jvmTargetVersion = catalog.findVersion("jvm-target").map { it.requiredVersion }.orElse("11")
 val jdkVersion =
   catalog.findVersion("jdk").map { it.requiredVersion.removeSuffix("-ea").toInt() }.orElse(23)
 

@@ -8,10 +8,10 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 
 val catalog = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
-val compileSdkVersion = catalog.findVersion("android-compileSdk").get().requiredVersion.toInt()
-val targetSdkVersion = catalog.findVersion("android-targetSdk").get().requiredVersion.toInt()
-val minSdkVersion = catalog.findVersion("android-minSdk").get().requiredVersion.toInt()
-val jvmTargetVersion = catalog.findVersion("jvmTarget").map { it.requiredVersion }.orElse("11")
+val compileSdkVersion = catalog.findVersion("android-compile-sdk").get().requiredVersion.toInt()
+val targetSdkVersion = catalog.findVersion("android-target-sdk").get().requiredVersion.toInt()
+val minSdkVersion = catalog.findVersion("android-min-sdk").get().requiredVersion.toInt()
+val jvmTargetVersion = catalog.findVersion("jvm-target").map { it.requiredVersion }.orElse("11")
 
 fun CommonExtension.configureCommonAndroid() {
   compileSdk = compileSdkVersion

@@ -97,8 +97,7 @@ kotlin {
       maybeCreate("sharedMain").apply {
         // ViewModel doesn't have artifacts for linux, tvOS, watchOS, or Windows
         dependencies {
-          implementation(libs.lifecycle.runtime.compose)
-          implementation(libs.lifecycle.viewModel.compose)
+          implementation(libs.lifecycle.viewmodel.compose)
         }
       }
     iosMain { dependsOn(sharedMain) }
@@ -114,29 +113,25 @@ kotlin {
     val sharedTest =
       maybeCreate("sharedTest").apply {
         dependencies {
-          implementation(libs.compose.ui)
           implementation(libs.compose.ui.test)
-          implementation(libs.lifecycle.runtime.compose)
-          implementation(libs.lifecycle.viewModel.compose)
         }
       }
     getByName("androidHostTest").apply {
       dependencies {
-        implementation(libs.activity.compose)
+        // Newer than the transitive version from ui-test, which breaks on recent SDKs
         implementation(libs.androidx.test.espresso.core)
         implementation(libs.robolectric)
       }
     }
     getByName("androidDeviceTest").apply {
       dependencies {
-        implementation(libs.kotlin.test)
         implementation(libs.activity.compose)
         implementation(libs.androidx.test.espresso.core)
         implementation(libs.androidx.test.ext.junit)
         implementation(libs.androidx.test.runner)
         implementation(libs.compose.foundation)
         implementation(libs.compose.ui.test.manifest)
-        implementation(libs.compose.ui.testing.junit)
+        implementation(libs.compose.ui.test.junit4)
         implementation(libs.leakcanary.android.instrumentation)
       }
     }
