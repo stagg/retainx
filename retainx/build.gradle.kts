@@ -127,8 +127,6 @@ kotlin {
       dependencies {
         implementation(libs.activity.compose)
         implementation(libs.androidx.test.espresso.core)
-        implementation(libs.androidx.test.ext.junit)
-        implementation(libs.androidx.test.runner)
         implementation(libs.compose.foundation)
         implementation(libs.compose.ui.test.manifest)
         implementation(libs.compose.ui.test.junit4)
