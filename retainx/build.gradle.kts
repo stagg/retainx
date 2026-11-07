@@ -1,6 +1,7 @@
 import com.android.build.api.withAndroid
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 // Copyright (C) 2026 Josh Stagg
 // SPDX-License-Identifier: MIT
@@ -15,6 +16,9 @@ plugins {
 }
 
 kotlin {
+  // Public API dumps in api/, checked by `checkKotlinAbi` and updated with `updateKotlinAbi`
+  @OptIn(ExperimentalAbiValidation::class) abiValidation()
+
   // Android Target via AGP KMP library plugin
   android {
     namespace = "com.retainx"
