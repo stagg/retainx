@@ -1,0 +1,10 @@
+public final class me/stagg/retainx/store/RetainedValuesStoreOwner {
+	public static final field $stable I
+	public fun <init> ()V
+	public final fun dispose ()V
+}
+
+public final class me/stagg/retainx/store/RetainedValuesStoreProviderKt {
+	public static final fun RetainedValuesStoreProvider (Lme/stagg/retainx/store/RetainedValuesStoreOwner;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+}
+

@@ -81,7 +81,7 @@ kotlin {
     binaries.executable()
   }
 
-  // Apply default source set hierarchy
+  // Apply default source set hierarchy. `shared` groups the targets Compose UI tests run on.
   @OptIn(ExperimentalKotlinGradlePluginApi::class)
   applyDefaultHierarchyTemplate {
     common {
@@ -97,17 +97,6 @@ kotlin {
       api(libs.compose.runtime.retain)
       api(libs.compose.runtime.saveable)
     }
-
-    val sharedMain =
-      maybeCreate("sharedMain").apply {
-        // ViewModel doesn't have artifacts for linux, tvOS, watchOS, or Windows
-        dependencies {
-          implementation(libs.lifecycle.viewmodel.compose)
-        }
-      }
-    iosMain { dependsOn(sharedMain) }
-    macosMain { dependsOn(sharedMain) }
-    webMain { dependsOn(sharedMain) }
 
     commonTest {
       dependencies {

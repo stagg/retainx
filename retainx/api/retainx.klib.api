@@ -1,20 +1,12 @@
 // Klib ABI Dump
 // Targets: [iosArm64, iosSimulatorArm64, js, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, wasmJs, watchosArm32, watchosArm64, watchosSimulatorArm64]
-// Alias: ios => [iosArm64, iosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
 // - Show declarations: true
 
 // Library unique name: <retainx-root:retainx>
-final class me.stagg.retainx/RetainedValuesStoreOwner { // me.stagg.retainx/RetainedValuesStoreOwner|null[0]
-    constructor <init>() // me.stagg.retainx/RetainedValuesStoreOwner.<init>|<init>(){}[0]
-
-    final fun dispose() // me.stagg.retainx/RetainedValuesStoreOwner.dispose|dispose(){}[0]
-}
-
 final val me.stagg.retainx/me_stagg_retainx_RetainableSaveableHolder_Value$stableprop // me.stagg.retainx/me_stagg_retainx_RetainableSaveableHolder_Value$stableprop|#static{}me_stagg_retainx_RetainableSaveableHolder_Value$stableprop[0]
-final val me.stagg.retainx/me_stagg_retainx_RetainedValuesStoreOwner$stableprop // me.stagg.retainx/me_stagg_retainx_RetainedValuesStoreOwner$stableprop|#static{}me_stagg_retainx_RetainedValuesStoreOwner$stableprop[0]
 
 final fun <#A: #B, #B: kotlin/Any?> (kotlinx.coroutines.flow/Flow<#A>).me.stagg.retainx/collectAsRetainState(#B, kotlin.coroutines/CoroutineContext?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.runtime/State<#B> // me.stagg.retainx/collectAsRetainState|collectAsRetainState@kotlinx.coroutines.flow.Flow<0:0>(0:1;kotlin.coroutines.CoroutineContext?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<0:1>;1§<kotlin.Any?>}[0]
 final fun <#A: #B, #B: kotlin/Any?> me.stagg.retainx/produceAndCollectAsRetainState(kotlin/Array<out kotlin/Any?>..., #B, kotlin.coroutines/CoroutineContext?, kotlin.coroutines/SuspendFunction0<kotlinx.coroutines.flow/Flow<#A>>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.runtime/State<#B> // me.stagg.retainx/produceAndCollectAsRetainState|produceAndCollectAsRetainState(kotlin.Array<out|kotlin.Any?>...;0:1;kotlin.coroutines.CoroutineContext?;kotlin.coroutines.SuspendFunction0<kotlinx.coroutines.flow.Flow<0:0>>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<0:1>;1§<kotlin.Any?>}[0]
@@ -27,12 +19,4 @@ final fun <#A: kotlin/Any?> me.stagg.retainx/produceRetainState(#A, kotlin/Any?,
 final fun <#A: kotlin/Any?> me.stagg.retainx/produceRetainState(#A, kotlin/Any?, kotlin/Any?, kotlin/Any?, kotlin.coroutines/CoroutineContext?, kotlin.coroutines/SuspendFunction1<androidx.compose.runtime/ProduceStateScope<#A>, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.runtime/State<#A> // me.stagg.retainx/produceRetainState|produceRetainState(0:0;kotlin.Any?;kotlin.Any?;kotlin.Any?;kotlin.coroutines.CoroutineContext?;kotlin.coroutines.SuspendFunction1<androidx.compose.runtime.ProduceStateScope<0:0>,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> me.stagg.retainx/produceRetainState(#A, kotlin/Array<out kotlin/Any?>..., kotlin.coroutines/CoroutineContext?, kotlin.coroutines/SuspendFunction1<androidx.compose.runtime/ProduceStateScope<#A>, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.runtime/State<#A> // me.stagg.retainx/produceRetainState|produceRetainState(0:0;kotlin.Array<out|kotlin.Any?>...;kotlin.coroutines.CoroutineContext?;kotlin.coroutines.SuspendFunction1<androidx.compose.runtime.ProduceStateScope<0:0>,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> me.stagg.retainx/retainSaveable(kotlin/Array<out kotlin/Any?>..., androidx.compose.runtime.saveable/Saver<#A, out kotlin/Any>, kotlin/String?, kotlin/Function0<androidx.compose.runtime/MutableState<#A>>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.runtime/MutableState<#A> // me.stagg.retainx/retainSaveable|retainSaveable(kotlin.Array<out|kotlin.Any?>...;androidx.compose.runtime.saveable.Saver<0:0,out|kotlin.Any>;kotlin.String?;kotlin.Function0<androidx.compose.runtime.MutableState<0:0>>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any?>}[0]
-final fun me.stagg.retainx/RetainedValuesStoreProvider(me.stagg.retainx/RetainedValuesStoreOwner?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // me.stagg.retainx/RetainedValuesStoreProvider|RetainedValuesStoreProvider(me.stagg.retainx.RetainedValuesStoreOwner?;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
 final fun me.stagg.retainx/me_stagg_retainx_RetainableSaveableHolder_Value$stableprop_getter(): kotlin/Int // me.stagg.retainx/me_stagg_retainx_RetainableSaveableHolder_Value$stableprop_getter|me_stagg_retainx_RetainableSaveableHolder_Value$stableprop_getter(){}[0]
-final fun me.stagg.retainx/me_stagg_retainx_RetainedValuesStoreOwner$stableprop_getter(): kotlin/Int // me.stagg.retainx/me_stagg_retainx_RetainedValuesStoreOwner$stableprop_getter|me_stagg_retainx_RetainedValuesStoreOwner$stableprop_getter(){}[0]
-
-// Targets: [ios, js, macosArm64, wasmJs]
-final val me.stagg.retainx/me_stagg_retainx_RetainedValuesStoreOwnerViewModel_Factory$stableprop // me.stagg.retainx/me_stagg_retainx_RetainedValuesStoreOwnerViewModel_Factory$stableprop|#static{}me_stagg_retainx_RetainedValuesStoreOwnerViewModel_Factory$stableprop[0]
-
-// Targets: [ios, js, macosArm64, wasmJs]
-final fun me.stagg.retainx/me_stagg_retainx_RetainedValuesStoreOwnerViewModel_Factory$stableprop_getter(): kotlin/Int // me.stagg.retainx/me_stagg_retainx_RetainedValuesStoreOwnerViewModel_Factory$stableprop_getter|me_stagg_retainx_RetainedValuesStoreOwnerViewModel_Factory$stableprop_getter(){}[0]

@@ -10,6 +10,8 @@ import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
 import androidx.compose.runtime.retain.LocalRetainedValuesStore
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
+import androidx.compose.runtime.retain.ManagedRetainedValuesStore
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
@@ -20,12 +22,12 @@ import androidx.compose.ui.test.ExperimentalTestApi
 
 /**
  * Hosts content the way an Android activity does, without needing one: a [SaveableStateRegistry]
- * for saved state and a [RetainedValuesStoreProvider] for retained values. [recreate] stands in for
+ * for saved state and a [ManagedRetainedValuesStore] for retained values. [recreate] stands in for
  * a configuration change and [recreateAfterProcessDeath] for process death.
  */
 @OptIn(ExperimentalTestApi::class)
 internal class RecreationHarness(private val test: ComposeUiTest) {
-  private var owner = RetainedValuesStoreOwner()
+  private var store = ManagedRetainedValuesStore()
   private var isShowing by mutableStateOf(true)
 
   /** The registry content currently saves into. Swapped on every recreation. */
@@ -40,10 +42,10 @@ internal class RecreationHarness(private val test: ComposeUiTest) {
       if (isShowing) {
         CompositionLocalProvider(
           LocalSaveableStateRegistry provides registry,
-          // Hide any platform store so retention is controlled by [owner]
+          // Hide any platform store so retention is controlled by [store]
           LocalRetainedValuesStore provides ForgetfulRetainedValuesStore,
         ) {
-          if (canRetain) RetainedValuesStoreProvider(owner, content) else content()
+          if (canRetain) LocalRetainedValuesStoreProvider(store, content) else content()
         }
       }
     }
@@ -56,15 +58,15 @@ internal class RecreationHarness(private val test: ComposeUiTest) {
   /** Like [recreate], but retained values are lost and only saved state is restored. */
   fun recreateAfterProcessDeath() = recreate(processDeath = true)
 
-  fun dispose() = owner.dispose()
+  fun dispose() = store.dispose()
 
   private fun recreate(processDeath: Boolean) {
     val saved = registry.performSave()
     isShowing = false
     test.waitForIdle()
     if (processDeath) {
-      owner.dispose()
-      owner = RetainedValuesStoreOwner()
+      store.dispose()
+      store = ManagedRetainedValuesStore()
     }
     registry = newRegistry(saved)
     isShowing = true

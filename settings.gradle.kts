@@ -25,6 +25,8 @@ rootProject.name = "retainx-root"
 
 include(":retainx")
 
+include(":retainx-store")
+
 include(":sample:shared")
 
 include(":sample:android")

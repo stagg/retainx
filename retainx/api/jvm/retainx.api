@@ -18,13 +18,3 @@ public final class me/stagg/retainx/RetainKt {
 	public static final fun retainSaveable ([Ljava/lang/Object;Landroidx/compose/runtime/saveable/Saver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)Ljava/lang/Object;
 }
 
-public final class me/stagg/retainx/RetainedValuesStoreOwner {
-	public static final field $stable I
-	public fun <init> ()V
-	public final fun dispose ()V
-}
-
-public final class me/stagg/retainx/RetainedValuesStoreProviderKt {
-	public static final fun RetainedValuesStoreProvider (Lme/stagg/retainx/RetainedValuesStoreOwner;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
-}
-

@@ -32,6 +32,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       implementation(project(":retainx"))
+      implementation(project(":retainx-store"))
       implementation(libs.compose.foundation)
       implementation(libs.compose.material3)
     }

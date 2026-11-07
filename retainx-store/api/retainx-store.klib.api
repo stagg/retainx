@@ -1,0 +1,25 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, js, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, wasmJs, watchosArm32, watchosArm64, watchosSimulatorArm64]
+// Alias: ios => [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <retainx-root:retainx-store>
+final class me.stagg.retainx.store/RetainedValuesStoreOwner { // me.stagg.retainx.store/RetainedValuesStoreOwner|null[0]
+    constructor <init>() // me.stagg.retainx.store/RetainedValuesStoreOwner.<init>|<init>(){}[0]
+
+    final fun dispose() // me.stagg.retainx.store/RetainedValuesStoreOwner.dispose|dispose(){}[0]
+}
+
+final val me.stagg.retainx.store/me_stagg_retainx_store_RetainedValuesStoreOwner$stableprop // me.stagg.retainx.store/me_stagg_retainx_store_RetainedValuesStoreOwner$stableprop|#static{}me_stagg_retainx_store_RetainedValuesStoreOwner$stableprop[0]
+
+final fun me.stagg.retainx.store/RetainedValuesStoreProvider(me.stagg.retainx.store/RetainedValuesStoreOwner?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // me.stagg.retainx.store/RetainedValuesStoreProvider|RetainedValuesStoreProvider(me.stagg.retainx.store.RetainedValuesStoreOwner?;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun me.stagg.retainx.store/me_stagg_retainx_store_RetainedValuesStoreOwner$stableprop_getter(): kotlin/Int // me.stagg.retainx.store/me_stagg_retainx_store_RetainedValuesStoreOwner$stableprop_getter|me_stagg_retainx_store_RetainedValuesStoreOwner$stableprop_getter(){}[0]
+
+// Targets: [ios, js, macosArm64, wasmJs]
+final val me.stagg.retainx.store/me_stagg_retainx_store_RetainedValuesStoreOwnerViewModel_Factory$stableprop // me.stagg.retainx.store/me_stagg_retainx_store_RetainedValuesStoreOwnerViewModel_Factory$stableprop|#static{}me_stagg_retainx_store_RetainedValuesStoreOwnerViewModel_Factory$stableprop[0]
+
+// Targets: [ios, js, macosArm64, wasmJs]
+final fun me.stagg.retainx.store/me_stagg_retainx_store_RetainedValuesStoreOwnerViewModel_Factory$stableprop_getter(): kotlin/Int // me.stagg.retainx.store/me_stagg_retainx_store_RetainedValuesStoreOwnerViewModel_Factory$stableprop_getter|me_stagg_retainx_store_RetainedValuesStoreOwnerViewModel_Factory$stableprop_getter(){}[0]

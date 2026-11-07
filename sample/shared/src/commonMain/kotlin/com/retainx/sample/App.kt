@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.stagg.retainx.retain
 import me.stagg.retainx.retainSaveable
+import me.stagg.retainx.store.RetainedValuesStoreProvider
 
 class CounterState(val id: String) : RetainObserver {
   var count by mutableIntStateOf(0)
@@ -80,6 +81,13 @@ class CounterState(val id: String) : RetainObserver {
 
 @Composable
 fun App(modifier: Modifier = Modifier) {
+  // Keeps retained values across composition recreation on desktop and iOS. Android's Compose UI
+  // already installs a store, so this steps aside there.
+  RetainedValuesStoreProvider { AppContent(modifier) }
+}
+
+@Composable
+private fun AppContent(modifier: Modifier) {
   MaterialTheme {
     Scaffold(modifier = modifier.fillMaxSize()) { innerPadding ->
       var showChild by retainSaveable { mutableStateOf(true) }

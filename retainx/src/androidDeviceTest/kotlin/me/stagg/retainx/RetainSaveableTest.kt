@@ -12,6 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
 import androidx.compose.runtime.retain.LocalRetainedValuesStore
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
+import androidx.compose.runtime.retain.ManagedRetainedValuesStore
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -41,7 +43,7 @@ class RetainedSaveableTest {
   private val scenario: ActivityScenario<ComponentActivity>
     get() = composeTestRule.activityRule.scenario
 
-  private var storeOwner = RetainedValuesStoreOwner()
+  private var store = ManagedRetainedValuesStore()
 
   @Test
   fun retainedIsUsedWhenRecreating() {
@@ -100,11 +102,11 @@ class RetainedSaveableTest {
     composeTestRule.onNodeWithTag("id").assertTextEquals("0")
     composeTestRule.onNodeWithTag("superBigData").assertTextEquals("Super big data")
 
-    // Swap in a fresh store owner to drop retained values, simulating process death
-    val previousOwner = storeOwner
-    storeOwner = RetainedValuesStoreOwner()
+    // Swap in a fresh store to drop retained values, simulating process death
+    val previousStore = store
+    store = ManagedRetainedValuesStore()
     scenario.recreate()
-    previousOwner.dispose()
+    previousStore.dispose()
 
     setActivityContent(content)
 
@@ -158,9 +160,9 @@ class RetainedSaveableTest {
   private fun setActivityContent(content: @Composable () -> Unit) {
     scenario.onActivity { activity ->
       activity.setContent {
-        // Hide the activity's store so retention is controlled by [storeOwner]
+        // Hide the activity's store so retention is controlled by [store]
         CompositionLocalProvider(LocalRetainedValuesStore provides ForgetfulRetainedValuesStore) {
-          RetainedValuesStoreProvider(owner = storeOwner, content = content)
+          LocalRetainedValuesStoreProvider(store = store, content = content)
         }
       }
     }
