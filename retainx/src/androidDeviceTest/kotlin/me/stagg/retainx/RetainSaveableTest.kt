@@ -20,12 +20,15 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ActivityScenario
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import leakcanary.DetectLeaksAfterTestSuccess.Companion.detectLeaksAfterTestSuccessWrapping
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
+import org.junit.runner.RunWith
 
-class RetainedSaveableTest : BaseComposeTest() {
+@RunWith(AndroidJUnit4::class)
+class RetainedSaveableTest {
 
   private val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -38,7 +41,7 @@ class RetainedSaveableTest : BaseComposeTest() {
   private val scenario: ActivityScenario<ComponentActivity>
     get() = composeTestRule.activityRule.scenario
 
-  private var canRetainOverride: Boolean? = null
+  private var storeOwner = RetainedValuesStoreOwner()
 
   @Test
   fun retainedIsUsedWhenRecreating() {
@@ -97,10 +100,11 @@ class RetainedSaveableTest : BaseComposeTest() {
     composeTestRule.onNodeWithTag("id").assertTextEquals("0")
     composeTestRule.onNodeWithTag("superBigData").assertTextEquals("Super big data")
 
-    // Override can retain to drop retaining values, to simulate process death
-    canRetainOverride = false
+    // Swap in a fresh store owner to drop retained values, simulating process death
+    val previousOwner = storeOwner
+    storeOwner = RetainedValuesStoreOwner()
     scenario.recreate()
-    canRetainOverride = null
+    previousOwner.dispose()
 
     setActivityContent(content)
 
@@ -154,7 +158,10 @@ class RetainedSaveableTest : BaseComposeTest() {
   private fun setActivityContent(content: @Composable () -> Unit) {
     scenario.onActivity { activity ->
       activity.setContent {
-        content()
+        // Hide the activity's store so retention is controlled by [storeOwner]
+        CompositionLocalProvider(LocalRetainedValuesStore provides ForgetfulRetainedValuesStore) {
+          RetainedValuesStoreProvider(owner = storeOwner, content = content)
+        }
       }
     }
   }

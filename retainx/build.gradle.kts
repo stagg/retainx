@@ -20,6 +20,9 @@ kotlin {
     withHostTest {
       isIncludeAndroidResources = true
     }
+    withDeviceTest {
+      instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
   }
 
   // JVM / Desktop Target
@@ -113,10 +116,20 @@ kotlin {
       dependencies {
         implementation(libs.activity.compose)
         implementation(libs.androidx.test.espresso.core)
+        implementation(libs.robolectric)
+      }
+    }
+    getByName("androidDeviceTest").apply {
+      dependencies {
+        implementation(libs.kotlin.test)
+        implementation(libs.activity.compose)
+        implementation(libs.androidx.test.espresso.core)
+        implementation(libs.androidx.test.ext.junit)
+        implementation(libs.androidx.test.runner)
         implementation(libs.compose.foundation)
+        implementation(libs.compose.ui.test.manifest)
         implementation(libs.compose.ui.testing.junit)
         implementation(libs.leakcanary.android.instrumentation)
-        implementation(libs.robolectric)
       }
     }
     jvmTest {
@@ -130,3 +143,13 @@ kotlin {
     wasmJsTest { dependsOn(sharedTest) }
   }
 }
+
+// The Compose resources plugin doesn't wire an output dir for the KMP Android device test variant,
+// which fails task validation. This library ships no Compose resources, so point it at a build dir.
+tasks
+  .named { it == "copyAndroidDeviceTestComposeResourcesToAndroidAssets" }
+  .configureEach {
+    (property("outputDirectory") as DirectoryProperty).set(
+      layout.buildDirectory.dir("generated/compose/androidDeviceTestAssets")
+    )
+  }
