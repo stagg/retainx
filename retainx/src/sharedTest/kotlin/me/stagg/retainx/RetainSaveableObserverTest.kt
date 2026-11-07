@@ -7,8 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.LocalRetainedValuesStore
 import androidx.compose.runtime.retain.ManagedRetainedValuesStore
-import androidx.compose.runtime.retain.RetainObserver
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -97,42 +95,5 @@ class RetainSaveableObserverTest : BaseComposeTest() {
     waitForIdle()
     assertSame(first, current)
     assertEquals(Counts(retained = 1, entered = 2, exited = 1), first.counts)
-  }
-}
-
-private data class Counts(
-  val retained: Int = 0,
-  val entered: Int = 0,
-  val exited: Int = 0,
-  val retired: Int = 0,
-  val unused: Int = 0,
-)
-
-private class Tracker(val id: Int) : RetainObserver {
-  var counts = Counts()
-    private set
-
-  override fun onRetained() {
-    counts = counts.copy(retained = counts.retained + 1)
-  }
-
-  override fun onEnteredComposition() {
-    counts = counts.copy(entered = counts.entered + 1)
-  }
-
-  override fun onExitedComposition() {
-    counts = counts.copy(exited = counts.exited + 1)
-  }
-
-  override fun onRetired() {
-    counts = counts.copy(retired = counts.retired + 1)
-  }
-
-  override fun onUnused() {
-    counts = counts.copy(unused = counts.unused + 1)
-  }
-
-  companion object {
-    val NeverSaver = Saver<Tracker, Int>(save = { null }, restore = { null })
   }
 }
