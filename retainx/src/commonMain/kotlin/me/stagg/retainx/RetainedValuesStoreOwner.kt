@@ -4,6 +4,7 @@ package me.stagg.retainx
 
 import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.retain.ManagedRetainedValuesStore
 
 /**
@@ -22,6 +23,7 @@ import androidx.compose.runtime.retain.ManagedRetainedValuesStore
  * Stores keep their values until [dispose], including when their provider permanently leaves the
  * composition.
  */
+@Stable
 public class RetainedValuesStoreOwner {
   private val slots = mutableMapOf<CompositeKeyHashCode, RetainedValuesStoreSlot>()
   private var isDisposed = false
