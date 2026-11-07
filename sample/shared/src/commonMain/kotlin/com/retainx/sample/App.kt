@@ -32,12 +32,17 @@ import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
 import androidx.compose.runtime.retain.ManagedRetainedValuesStore
 import androidx.compose.runtime.retain.RetainObserver
 import androidx.compose.runtime.retain.retain
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import me.stagg.retainx.retain
+import me.stagg.retainx.retainSaveable
 
 class CounterState(val id: String) : RetainObserver {
   var count by mutableIntStateOf(0)
@@ -60,13 +65,24 @@ class CounterState(val id: String) : RetainObserver {
   override fun onRetired() {}
 
   override fun onUnused() {}
+
+  companion object {
+    /**
+     * Saves [id] and [count]. Callback counts describe one instance, so a restored one starts at 0.
+     */
+    val Saver: Saver<CounterState, *> =
+      listSaver(
+        save = { listOf(it.id, it.count) },
+        restore = { (id, count) -> CounterState(id as String).apply { this.count = count as Int } },
+      )
+  }
 }
 
 @Composable
-fun App() {
+fun App(modifier: Modifier = Modifier) {
   MaterialTheme {
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-      var showChild by retain { mutableStateOf(true) }
+    Scaffold(modifier = modifier.fillMaxSize()) { innerPadding ->
+      var showChild by retainSaveable { mutableStateOf(true) }
 
       BoxWithConstraints(
         modifier =
@@ -100,15 +116,24 @@ fun App() {
           Spacer(modifier = Modifier.height(24.dp))
 
           val scopedRetainStore = retain { ManagedRetainedValuesStore() }
+          val saveableStateHolder = rememberSaveableStateHolder()
           if (showChild) {
-            LocalRetainedValuesStoreProvider(store = scopedRetainStore) {
-              CounterCard()
+            saveableStateHolder.SaveableStateProvider("child") {
+              LocalRetainedValuesStoreProvider(store = scopedRetainStore) {
+                CounterCard()
+              }
             }
           } else {
             Text(
               text = "Child is currently detached. Retained state persists!",
               style = MaterialTheme.typography.bodyMedium,
             )
+            Button(onClick = { scopedRetainStore.dispose() }) {
+              Text(text = "Clear retained")
+            }
+            Button(onClick = { saveableStateHolder.removeState("child") }) {
+              Text(text = "Clear saved")
+            }
           }
         }
       }
@@ -117,12 +142,10 @@ fun App() {
 }
 
 @Composable
-fun CounterCard() {
-  val state = retain {
-    CounterState("counter-1")
-  }
+fun CounterCard(modifier: Modifier = Modifier) {
+  val state = retainSaveable(saver = CounterState.Saver) { CounterState(id = "counter-1") }
 
-  Card(modifier = Modifier.widthIn(max = 500.dp).fillMaxWidth(0.9f).padding(16.dp)) {
+  Card(modifier = modifier.widthIn(max = 500.dp).fillMaxWidth(0.9f).padding(16.dp)) {
     Column(
       modifier = Modifier.padding(24.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
