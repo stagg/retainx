@@ -13,6 +13,9 @@ val targetSdkVersion = catalog.findVersion("android-target-sdk").get().requiredV
 val minSdkVersion = catalog.findVersion("android-min-sdk").get().requiredVersion.toInt()
 val jvmTargetVersion = catalog.findVersion("jvm-target").map { it.requiredVersion }.orElse("11")
 
+/** Run with `<module>:pixel6Api34AndroidDeviceTest`. CI runs it from the device test job. */
+val ManagedDeviceName = "pixel6Api34"
+
 fun CommonExtension.configureCommonAndroid() {
   compileSdk = compileSdkVersion
 }
@@ -38,8 +41,33 @@ pluginManager.withPlugin("com.android.kotlin.multiplatform.library") {
             lintConfig = lintXml
           }
         }
+        // Modules with device tests get a runner and a managed device for CI
+        if (file("src/androidDeviceTest").exists()) {
+          withDeviceTest {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            managedDevices {
+              localDevices.create(ManagedDeviceName) {
+                device = "Pixel 6"
+                sdkVersion = 34
+                // Automated Test Device images are headless and trimmed down for faster CI runs
+                systemImageSource = "aosp-atd"
+              }
+            }
+          }
+        }
       }
   }
+
+  // Compose Multiplatform's resources plugin doesn't wire an output dir for the KMP Android
+  // device test variant, which fails task validation. Nothing here ships Compose resources, so
+  // point it at a build dir.
+  tasks
+    .named { it == "copyAndroidDeviceTestComposeResourcesToAndroidAssets" }
+    .configureEach {
+      (property("outputDirectory") as DirectoryProperty).set(
+        layout.buildDirectory.dir("generated/compose/androidDeviceTestAssets")
+      )
+    }
 
   catalog.findLibrary("slack-compose-lint").ifPresent { composeLint ->
     dependencies.add("lintChecks", composeLint)

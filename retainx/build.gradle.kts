@@ -25,21 +25,6 @@ kotlin {
     withHostTest {
       isIncludeAndroidResources = true
     }
-    withDeviceTest {
-      instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-      managedDevices {
-        localDevices.create("pixel6Api34") {
-          device = "Pixel 6"
-          sdkVersion = 34
-          // Automated Test Device images are headless and trimmed down for faster CI runs
-          systemImageSource = "aosp-atd"
-          // Match the host so the emulator runs natively: x86_64 on CI, arm64 on Apple silicon
-          testedAbi =
-            if (System.getProperty("os.arch") in setOf("aarch64", "arm64")) "arm64-v8a"
-            else "x86_64"
-        }
-      }
-    }
   }
 
   // JVM / Desktop Target
@@ -142,16 +127,6 @@ kotlin {
     wasmJsTest { dependsOn(sharedTest) }
   }
 }
-
-// The Compose resources plugin doesn't wire an output dir for the KMP Android device test variant,
-// which fails task validation. This library ships no Compose resources, so point it at a build dir.
-tasks
-  .named { it == "copyAndroidDeviceTestComposeResourcesToAndroidAssets" }
-  .configureEach {
-    (property("outputDirectory") as DirectoryProperty).set(
-      layout.buildDirectory.dir("generated/compose/androidDeviceTestAssets")
-    )
-  }
 
 // Baselines for every published target's dependencies. Update with `dependencyGuardBaseline`.
 dependencyGuard {
