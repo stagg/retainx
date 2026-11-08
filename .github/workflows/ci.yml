@@ -105,7 +105,7 @@ jobs:
 
       - name: Run Device Tests
         run: >-
-          ./gradlew :retainx:pixel6Api34AndroidDeviceTest
+          ./gradlew :retainx:pixel6Api34AndroidDeviceTest --stacktrace
           -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
 
       - name: Upload Test Reports
