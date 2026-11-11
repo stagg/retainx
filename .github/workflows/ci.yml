@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 27
         uses: actions/setup-java@v6.2.0
@@ -34,10 +34,10 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Run Kempt Check
-        uses: ZacSweers/kempt@v0.3.1
+        uses: ZacSweers/kempt@v0.4.0
         with:
           cache: true
 
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 27
         uses: actions/setup-java@v6.2.0
@@ -61,7 +61,7 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Run Checks & Tests
         run: ./gradlew check -x lint
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Enable KVM
         run: |
@@ -92,10 +92,10 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Cache Managed Device Images
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.android/avd/gradle-managed
@@ -110,7 +110,7 @@ jobs:
 
       - name: Upload Test Reports
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-device-test-reports
           path: retainx/build/reports/androidTests/
@@ -122,7 +122,7 @@ jobs:
       GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx6g -XX:+UseG1GC -XX:SoftRefLRUPolicyMSPerMB=1" -Dkotlin.native.jvmArgs="-Xmx6g -XX:+UseG1GC -XX:SoftRefLRUPolicyMSPerMB=1"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 27
         uses: actions/setup-java@v6.2.0
@@ -134,10 +134,10 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Cache Konan
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.konan/cache
@@ -183,7 +183,7 @@ jobs:
     if: github.repository == 'stagg/retainx' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 27
         uses: actions/setup-java@v6.2.0
@@ -195,10 +195,10 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Cache Konan
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.konan/cache
