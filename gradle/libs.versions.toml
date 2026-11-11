@@ -1,6 +1,6 @@
 [versions]
 # Toolchain
-jdk = "23"
+jdk = "27"
 jvm-target = "11"
 
 # Android SDK

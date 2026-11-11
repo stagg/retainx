@@ -11,7 +11,7 @@ val catalog = rootProject.extensions.getByType<VersionCatalogsExtension>().named
 val compileSdkVersion = catalog.findVersion("android-compile-sdk").get().requiredVersion.toInt()
 val targetSdkVersion = catalog.findVersion("android-target-sdk").get().requiredVersion.toInt()
 val minSdkVersion = catalog.findVersion("android-min-sdk").get().requiredVersion.toInt()
-val jvmTargetVersion = catalog.findVersion("jvm-target").map { it.requiredVersion }.orElse("11")
+val jvmTargetVersion = catalog.findVersion("jvm-target").map { it.requiredVersion }.get()
 
 /** Run with `<module>:pixel6Api34AndroidDeviceTest`. CI runs it from the device test job. */
 val ManagedDeviceName = "pixel6Api34"

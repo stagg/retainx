@@ -44,6 +44,7 @@ public fun <T : Any> retain(
   return retainInternal(
     inputs = inputs,
     key = key,
+    saver = neverSave(),
     init = calculation,
   )
 }
@@ -68,7 +69,7 @@ public fun <T : Any> retainSaveable(
 @Composable
 internal fun <T : Any> retainInternal(
   vararg inputs: Any?,
-  saver: Saver<T, out Any> = neverSave(),
+  saver: Saver<T, out Any>,
   key: String? = null,
   init: () -> T,
 ): T {
