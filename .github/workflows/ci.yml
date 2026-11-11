@@ -97,15 +97,18 @@ jobs:
       - name: Cache Managed Device Images
         uses: actions/cache@v6
         with:
+          # AGP only installs the emulator alongside a missing system image, so it has to be
+          # cached with the image or a cache hit leaves device setup without one
           path: |
             ~/.android/avd/gradle-managed
             ${{ env.ANDROID_HOME }}/system-images
+            ${{ env.ANDROID_HOME }}/emulator
           # No prefix fallback: images and AVDs from another AGP version break device setup
           key: ${{ runner.os }}-gmd-${{ hashFiles('gradle/libs.versions.toml', 'build-logic/src/main/kotlin/retainx.android.gradle.kts') }}
 
       - name: Run Device Tests
         run: >-
-          ./gradlew :retainx:pixel6Api34AndroidDeviceTest
+          ./gradlew :retainx:pixel6Api34AndroidDeviceTest --stacktrace
           -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
 
       - name: Upload Test Reports
