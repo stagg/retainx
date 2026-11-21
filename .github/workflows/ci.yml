@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up JDK 27
-        uses: actions/setup-java@v6.2.0
+        uses: actions/setup-java@v6.3.0
         with:
           distribution: 'zulu'
           java-version: '27'
@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up JDK 27
-        uses: actions/setup-java@v6.2.0
+        uses: actions/setup-java@v6.3.0
         with:
           distribution: 'zulu'
           java-version: '27'
@@ -83,7 +83,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Set up JDK 27
-        uses: actions/setup-java@v6.2.0
+        uses: actions/setup-java@v6.3.0
         with:
           distribution: 'zulu'
           java-version: '27'
@@ -128,7 +128,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up JDK 27
-        uses: actions/setup-java@v6.2.0
+        uses: actions/setup-java@v6.3.0
         with:
           distribution: 'zulu'
           java-version: '27'
@@ -189,7 +189,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up JDK 27
-        uses: actions/setup-java@v6.2.0
+        uses: actions/setup-java@v6.3.0
         with:
           distribution: 'zulu'
           java-version: '27'
