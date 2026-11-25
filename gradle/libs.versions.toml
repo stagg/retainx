@@ -9,7 +9,7 @@ android-min-sdk = "23"
 android-target-sdk = "37"
 
 # Gradle plugins
-agp = "9.5.1"
+agp = "9.5.3"
 kotlin = "2.4.21"
 dependency-guard = "0.5.0"
 maven-publish = "0.37.0"
